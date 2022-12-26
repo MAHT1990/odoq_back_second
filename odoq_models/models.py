@@ -29,7 +29,8 @@ class SmsHistory(models.Model):
 
     @staticmethod
     def send_message(send_to, is_auth=False, content=''):
-        import urllib.parse, urllib.request
+        # import urllib.parse, urllib.request
+        import requests
         import xmltodict
         import json
 
@@ -38,21 +39,23 @@ class SmsHistory(models.Model):
 
         if(is_auth):
             import random
-            code = '{0:06d}'.format(random.randrage(999999))
+            code = '{0:06d}'.format(random.randrange(999999))
             content = f'인증번호 [{code}]를 입력창에 3분이내로 입력해주세요.'
 
         params = {
             'key': 'dtwkui1b8e5yux73rl5e5c3g666yt861',
-            'user_id': 'aloe89',
+            'userid': 'aloe89',
             'sender': '01077650903',
-            'receiver': '01092445161',
-            'msg': 'text문자발송.'
+            'receiver': str(send_to),
+            'msg': content
         }
 
-        url = "https://apis.aligo.in/send/" + urllib.parse.urlencode(params)
+        url = "https://apis.aligo.in/send/"
 
         result = False
-        with urllib.request.urlopen(url) as response:
-            data = xmltodict.parse(response.read())
-            result = (data['result_code']==1)
-            print(result)
+        with requests.post(url, data=params) as response:
+            print(response)
+            print(dir(response))
+            print(response.json())
+            # result = (data['result_code']==1)
+            # print(result)

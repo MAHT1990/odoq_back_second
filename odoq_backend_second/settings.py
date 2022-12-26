@@ -21,6 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-a7!p6h!i87kp1krj@ygeeg0@h8r$c!@)(xcj8r*odw4pb1qvg5'
+ALIGO_API_KEY = 'dtwkui1b8e5yux73rl5e5c3g666yt861'
+ALIGO_SENDER = '01077650903'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -107,13 +109,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
