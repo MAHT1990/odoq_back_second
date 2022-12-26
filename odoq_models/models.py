@@ -15,7 +15,7 @@ def SMS_HISTORY_AUTH_EXPIRE():
 class SmsHistoryAuth(models.Model):
     code = models.CharField(max_length=255)
     is_auth = models.BooleanField(default=False)
-    expired_at = models.DateTimeField(default=SMS_HISTORY_AUTH_EXPIRE())
+    expired_at = models.DateTimeField()
 
 class SmsHistory(models.Model):
     sms_type = models.CharField(max_length=255)
