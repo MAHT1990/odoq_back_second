@@ -130,5 +130,4 @@ dmypy.json
 
 # Django
 migrations
-odoq_models/migrations/0002_alter_smshistoryauth_expired_at.py
-odoq_models/migrations/0003_alter_smshistoryauth_expired_at.py
+migrations/
