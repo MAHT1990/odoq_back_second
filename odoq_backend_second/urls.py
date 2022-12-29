@@ -21,6 +21,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
+urlpatterns_csrf = [
+    path('api/csrf/', api.csrf.views.TokenViewSet.as_view()),
+]
+
 urlpatterns_post = [
     path('api/post/', api.post.views.index)
 ]
@@ -29,7 +33,10 @@ urlpatterns_user = [
     path('api/user/', api.user.views.index),
     path('api/user/login/', api.user.login.views.LoginUserModel.as_view()),
     path('api/user/signup/', api.user.login.views.index),
+    path('api/user/signup/send_sms_auth/', api.user.signup.views.SendSMSAuth.as_view()),
+    path('api/user/signup/verify_sms_auth/', api.user.signup.views.VerifySMSAuth.as_view()),
 ]
 
+urlpatterns += urlpatterns_csrf
 urlpatterns += urlpatterns_post
 urlpatterns += urlpatterns_user
