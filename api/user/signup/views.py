@@ -2,10 +2,9 @@ from rest_framework.views import APIView
 from common._RES import makeResponse
 from . import services
 from core.middleware.CSRF import csrf_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 class RegistUser(APIView):
-  @ensure_csrf_cookie
+  @csrf_decorator
   def post(self, request):
     result = services.RegistUser(request.data)()
 
@@ -16,7 +15,7 @@ class RegistUser(APIView):
     )
 
 class SendSMSAuth(APIView):
-  @ensure_csrf_cookie
+  @csrf_decorator
   def post(self, request):
     result = services.SendSMSAuth(request.data)()
 
@@ -27,7 +26,7 @@ class SendSMSAuth(APIView):
 
 
 class VerifySMSAuth(APIView):
-  @ensure_csrf_cookie
+  @csrf_decorator
   def post(self, request):
     result = services.VerifySMSAuth(request.data)()
 
