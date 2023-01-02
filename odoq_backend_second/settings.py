@@ -40,6 +40,19 @@ CORS_ORIGIN_WHITELIST = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+from corsheaders.defaults import default_headers
+CORS_ALLOW_HEADERS = list(default_headers) + [
+  'x-csrftoken',
+  'x-csrfuniqueid',
+  'x-jwt',
+  'x-jwtnonmember',
+  'x-mainpageuid',
+]
+
+CORS_EXPOSE_HEADERS = [
+  'content-disposition'
+]
+
 # Application definition
 
 INSTALLED_APPS = [
