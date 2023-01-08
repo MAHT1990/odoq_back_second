@@ -6,7 +6,6 @@ class RegistUser(serializers.Serializer):
   password = serializers.CharField(required=True)
   name = serializers.CharField(required=True)
   phone = serializers.CharField(required=True)
-  advertising_consent = serializers.BooleanField(required=True)
 
   class Meta:
     model = None
