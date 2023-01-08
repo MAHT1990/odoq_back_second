@@ -35,6 +35,7 @@ urlpatterns_user = [
     path('api/user/signup/', api.user.login.views.index),
     path('api/user/signup/send_sms_auth/', api.user.signup.views.SendSMSAuth.as_view()),
     path('api/user/signup/verify_sms_auth/', api.user.signup.views.VerifySMSAuth.as_view()),
+    path('api/user/signup/create/', api.user.signup.views.RegistUser.as_view()),
 ]
 
 urlpatterns += urlpatterns_csrf
