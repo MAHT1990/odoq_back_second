@@ -7,8 +7,6 @@ def csrf_decorator(func):
     if 'X-CSRFTOKEN' in request.headers and 'X-CSRFUNIQUEID' in request.headers:
       csrf_token = request.headers['X-CSRFTOKEN']
       csrf_unique_id = request.headers['X-CSRFUNIQUEID']
-      print('csrfToken is ',csrf_token)
-      print('csrfUniqueID is ', csrf_unique_id)
       if _CSRF.validateToken(csrf_token, csrf_unique_id):
         return func(self, request, *args, **kwargs)
       else:
