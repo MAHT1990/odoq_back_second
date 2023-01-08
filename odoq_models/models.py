@@ -99,3 +99,9 @@ class SmsHistory(models.Model):
         else:
             print('인증 실패 - 인증요청내역 없음 혹은 이미 성공한 요청')
         return -1
+
+class Admin(models.Model):
+    email = models.EmailField()
+    encrypted_password = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255)
