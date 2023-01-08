@@ -20,11 +20,6 @@ class RegistUser():
             if self.__is_duplicate_phone():
                 return {'success': False, 'message': '이미 가입되어있는 연락처 입니다.'}
 
-            if self.request_data.data['advertising_consent']:
-                advertising_consent = True
-            else:
-                advertising_consent = False
-
             try:
                 with transaction.atomic():
                     encrypted_password = ENCRYPT.encrypt(self.request_data.data['password'])
@@ -44,11 +39,14 @@ class RegistUser():
 
                 return {'success': True, 'message': None, 'data': {'token': token}}
             except IntegrityError as e:
+                print(e)
                 return {'success': False, 'message': e.message}
             except Error as e:
+                print(e)
                 return {'success': False, 'message': e.message}
 
         else:
+            print('serializers에서 잘못되었음')
             return {'success': False, 'message': common.serializer_error_message(self.request_data.errors)}
 
     def __is_duplicate_email(self):
@@ -57,12 +55,8 @@ class RegistUser():
         if user is not None:
             return True
 
-        super_admin = OdoqModels.SuperAdmin.objects.filter(email=email).first()
+        super_admin = OdoqModels.Admin.objects.filter(email=email).first()
         if super_admin is not None:
-            return True
-
-        store_admin = OdoqModels.StoreAdmin.objects.filter(email=email).first()
-        if store_admin is not None:
             return True
 
         return False
