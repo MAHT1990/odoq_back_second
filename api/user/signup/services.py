@@ -91,6 +91,12 @@ class VerifySMSAuth():
         self.request_data = serializers.VerifySMSAuth(data=request_data)
 
     def __call__(self):
+        '''
+        관련 serializer로 validation 이후,
+        전화번호(target_phone)와 code를 받아
+        Model : SmsHistory의 인증 로직으로 전달 -> return : 0 or -1
+        인증 로직의 결과에 따라 dict 만들어 return.
+        '''
         if self.request_data.is_valid():
             target_phone = self.request_data.data['phone']
             code = self.request_data.data['code']
