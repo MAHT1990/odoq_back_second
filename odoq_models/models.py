@@ -38,13 +38,6 @@ class SmsHistory(models.Model):
         '''
         import requests
         #문자 발송용 API 관련
-        params = {
-            'key': settings.ALIGO['API_KEY'],
-            'userid': settings.ALIGO['USER_ID'],
-            'sender': settings.ALIGO['SENDER'],
-            'receiver': str(send_to),
-            'msg': content
-        }
 
         url = "https://apis.aligo.in/send/"
         content = content
@@ -55,6 +48,13 @@ class SmsHistory(models.Model):
             code = '{0:06d}'.format(random.randrange(999999))
             content = f'인증번호 [{code}]를 입력창에 3분이내로 입력해주세요.'
 
+        params = {
+            'key': settings.ALIGO['API_KEY'],
+            'userid': settings.ALIGO['USER_ID'],
+            'sender': settings.ALIGO['SENDER'],
+            'receiver': str(send_to),
+            'msg': content
+        }
 
         with requests.post(url, data=params) as response:
             data = response.json()
