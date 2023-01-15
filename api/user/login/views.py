@@ -19,12 +19,12 @@ class LoginUserModel(APIView):
   def post(self, request):
     email = request.data['email']
     password = request.data['password']
-    users = OdoqModels.User.objects.filter(email=email, is_leaved=False)
+    users = OdoqModels.User.objects.filter(email=email)
 
     if users.count() > 0:
       for user in users:
         if ENCRYPT.validate(password, user.encrypted_password):
-          token = JWT.sign(user.id, 0, '')
+          token = JWT.sign(user.id, 0, user.name)
           return makeResponse(
             'success',
             '',
