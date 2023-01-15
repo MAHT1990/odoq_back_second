@@ -35,7 +35,7 @@ class RegistUser():
                     return {'success': True, 'message': '오류가 발생했습니다. 다시 시도해주세요'}
 
                 # 로그인
-                token = JWT.sign(user.id, 0, '')
+                token = JWT.sign(user.id, 0, user.name)
 
                 return {'success': True, 'message': None, 'data': {'token': token}}
             except IntegrityError as e:
