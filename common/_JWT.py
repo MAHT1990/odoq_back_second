@@ -8,11 +8,11 @@ JWT_ALGORITHM = 'HS256'
 
 class JWT():
   @staticmethod
-  def sign(id, grade, store_id):
+  def sign(id, grade, name):
     data = {}
-    data['info'] = "{}_{}_{}".format(id, grade, store_id)
-    data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-    # 토큰 유효시간 ( 기본 설정 1일 )
+    data['info'] = "{}_{}_{}".format(id, grade, name)
+    data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(days=3)
+    # 토큰 유효시간 ( 기본 설정 3일 )
     return jwt.encode(data, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
   @staticmethod
