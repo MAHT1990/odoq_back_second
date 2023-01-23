@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path
 import api
@@ -25,10 +27,6 @@ urlpatterns_csrf = [
     path('api/csrf/', api.csrf.views.TokenViewSet.as_view()),
 ]
 
-urlpatterns_post = [
-    path('api/post/', api.post.views.index)
-]
-
 urlpatterns_user = [
     path('api/user/', api.user.views.index),
     path('api/user/login/', api.user.login.views.LoginUserModel.as_view()),
@@ -38,6 +36,19 @@ urlpatterns_user = [
     path('api/user/signup/create/', api.user.signup.views.RegistUser.as_view()),
 ]
 
+urlpatterns_question = [
+    path('api/question/', api.question.views.GetQuestion.as_view()),
+]
+
+urlpatterns_post = [
+    path('api/post/', api.post.views.index)
+]
+
 urlpatterns += urlpatterns_csrf
-urlpatterns += urlpatterns_post
 urlpatterns += urlpatterns_user
+urlpatterns += urlpatterns_question
+urlpatterns += urlpatterns_post
+
+# Media
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

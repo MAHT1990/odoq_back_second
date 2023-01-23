@@ -5,7 +5,7 @@ import odoq_models.models as OdoqModels
 from common._ENCRYPT import ENCRYPT
 from common._JWT import JWT
 from . import dictionaries
-from core.middleware.CSRF import csrf_decorator
+from middleware.CSRF import csrf_decorator
 
 
 def index(request):

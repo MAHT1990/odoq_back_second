@@ -17,6 +17,7 @@ def csrf_decorator(func):
   return check
 
 
+
 class CSRFMiddleWare:
   def __init__(self, next_layer=None):
     self.get_response = next_layer

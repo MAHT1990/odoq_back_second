@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from common._RES import makeResponse
 from . import services
-from core.middleware.CSRF import csrf_decorator
+from middleware.CSRF import csrf_decorator
 
 class RegistUser(APIView):
   @csrf_decorator

@@ -105,6 +105,22 @@ class SmsHistory(models.Model):
             print('인증 실패 - 인증요청내역 없음')
         return -1
 
+class Question(models.Model):
+    code = models.CharField(max_length=255)
+    season = models.CharField(max_length=255)
+    img = models.ImageField()
+    answer = models.CharField(max_length=255)
+    upload_datetime = models.DateTimeField(null = True)
+
+    answer_count = models.PositiveIntegerField(default=0)
+    solve_count = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
+        return self.code
+
 class Admin(models.Model):
     email = models.EmailField()
     encrypted_password = models.CharField(max_length=255)
