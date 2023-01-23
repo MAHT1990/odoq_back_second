@@ -4,14 +4,20 @@ import datetime
 class GetQuestion:
     def __init__(self, request):
         self.request = request
-    def __call__(self, *args, **kwargs):
-        test_question = OdoqModels.Question.objects.all().first()
+    def _get_question(self, *args, **kwargs):
+        self.question = OdoqModels.Question.objects.all().first()
 
-        data = {
-            'img': test_question.img
+    def make_data(self):
+        self._get_question()
+        self.data = {
+            'code': self.question.code,
+            'season': self.question.season,
+            'img_url': self.question.img.url,
+            'answer': self.question.answer,
+            'answer_count': self.question.answer_count,
+            'solve_count': self.question.solve_count,
         }
-
-        return data
+        return self.data
 
 # def get_current_qeustion(request):
 #     seoul_timezone = datetime.timezone(9)
