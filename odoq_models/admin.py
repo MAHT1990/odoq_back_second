@@ -4,6 +4,7 @@ from .models import *
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'code',
         'season',
         'img',
