@@ -9,6 +9,7 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
 
+# SMS 인증 관련.
 def SMS_HISTORY_AUTH_EXPIRE():
     return timezone.now() + timezone.timedelta(minutes=3)
 
@@ -120,6 +121,22 @@ class Question(models.Model):
 
     def __str__(self):
         return self.code
+
+class Post(models.Model):
+    # Question과 Comment는 1 : n 의 관계이다.
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    like_count = models.PositiveIntegerField(default = 0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now = True)
+    blind = models.BooleanField(default=False)
+    blind_text = models.CharField(
+        max_length=100,
+        default="작성자에 의하여 블라인드 처리되었습니다.",
+        )
+
+    class Meta:
+        ordering = ['-created_at']
 
 class Admin(models.Model):
     email = models.EmailField()
