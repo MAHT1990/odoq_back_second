@@ -41,7 +41,7 @@ urlpatterns_question = [
 ]
 
 urlpatterns_post = [
-    path('api/post/', api.post.views.index)
+    path('api/post/', api.post.views.PostView.as_view()),
 ]
 
 urlpatterns += urlpatterns_csrf
