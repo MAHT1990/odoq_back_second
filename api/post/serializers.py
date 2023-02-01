@@ -1,0 +1,7 @@
+from rest_framework.serializers import ModelSerializer
+import odoq_models.models as OdoqModels
+
+class PostSerializer(ModelSerializer):
+    class Meta:
+        model = OdoqModels.Post
+        fields = '__all__'
