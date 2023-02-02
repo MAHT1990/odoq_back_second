@@ -14,15 +14,18 @@ class PostView(APIView):
         return response
 
     def post(self, request):
-        # print('createPost get called')
+        print('createPost get called')
         # print('request.data is ', request.data)
         post_before_validated = serializers.PostSerializer(data=request.data)
         if post_before_validated.is_valid():
-            post = post_before_validated.save()
+            post_before_validated.save()
+            result = services.GetPost(request).make_data()
+
+        print('result is ', result);
 
         response = makeResponse(
-            'status',
-            'message',
-            {}
+            'success',
+            '',
+            result,
         )
         return response
