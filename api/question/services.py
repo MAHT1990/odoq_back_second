@@ -57,15 +57,19 @@ class GetQuestion:
 
     def make_data(self):
         self._get_question()
-        self.data = {
-            'code': self.question.code,
-            'season': self.question.season,
-            'img_url': self.question.img.url,
-            'answer': self.question.answer,
-            'answer_count': self.question.answer_count,
-            'solve_count': self.question.solve_count,
-            'second_remain': self.second_remain,
-        }
+        try:
+            self.data = {
+                'code': self.question.code,
+                'season': self.question.season,
+                'img_url': self.question.img.url,
+                'answer': self.question.answer,
+                'answer_count': self.question.answer_count,
+                'solve_count': self.question.solve_count,
+                'second_remain': self.second_remain,
+            }
+        except AttributeError as e:
+            print(e)
+            self.data = None
         print(self.data)
         return self.data
 
