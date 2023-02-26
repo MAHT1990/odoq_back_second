@@ -5,7 +5,7 @@ from . import services
 
 class GetQuestion(APIView):
     def get(self, request):
-        print('getquestion called')
+        # print('getquestion called')
         result = services.GetQuestion(request).make_data()
         response = makeResponse(
             'status',

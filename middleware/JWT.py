@@ -76,7 +76,7 @@ class JWTMiddleWare:
     ]
 
   def process_request(self, request):
-    print(request.path)
+    # print(request.path)
     # ! 만약 제외해야될 위치가 있다면 여기에서 제외
     if request.path in self.exclude_path_list:
       return None

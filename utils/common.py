@@ -23,7 +23,7 @@ def serializer_error_message(errors):
       else:
         messages.append(error)
 
-    print(messages)
+    # print(messages)
     return ','.join(np.array(messages).flatten()) if messages else ''
   else:
     return ''

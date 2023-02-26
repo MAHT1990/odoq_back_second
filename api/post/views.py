@@ -4,7 +4,7 @@ from . import services, serializers
 
 class PostView(APIView):
     def get(self, request):
-        print('getPost get called')
+        # print('getPost get called')
         result = services.GetPost(request).make_data()
         response = makeResponse(
             'success',
@@ -14,14 +14,14 @@ class PostView(APIView):
         return response
 
     def post(self, request):
-        print('createPost get called')
+        # print('createPost get called')
         # print('request.data is ', request.data)
         post_before_validated = serializers.PostSerializer(data=request.data)
         if post_before_validated.is_valid():
             post_before_validated.save()
             result = services.GetPost(request).make_data()
 
-        print('result is ', result);
+        # print('result is ', result);
 
         response = makeResponse(
             'success',

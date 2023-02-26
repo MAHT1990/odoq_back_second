@@ -97,13 +97,17 @@ class SmsHistory(models.Model):
                         last_auth.save()
                         return 0
                     else:
-                        print('인증 실패 - 코드 불일치')
+                        # print('인증 실패 - 코드 불일치')
+                        pass
                 else:
-                    print('인증 실패 - 인증 요청 만료시간 초과')
+                    # print('인증 실패 - 인증 요청 만료시간 초과')
+                    pass
             else:
-                print('이미 인증된 요청입니다.')
+                # print('이미 인증된 요청입니다.')
+                pass
         else:
-            print('인증 실패 - 인증요청내역 없음')
+            # print('인증 실패 - 인증요청내역 없음')
+            pass
         return -1
 
 class Question(models.Model):

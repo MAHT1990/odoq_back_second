@@ -39,7 +39,7 @@ class GetQuestion:
                 self.question = list_question_current_and_next[0][1]
                 self.second_remain = list_question_current_and_next[1][0]
             except ValueError as e:
-                print(e)
+                # print(e)
                 self.question = min(
                     list(
                         map(
@@ -68,8 +68,8 @@ class GetQuestion:
                 'second_remain': self.second_remain,
             }
         except AttributeError as e:
-            print(e)
+            # print(e)
             self.data = None
-        print(self.data)
+        # print(self.data)
         return self.data
 

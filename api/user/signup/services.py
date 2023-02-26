@@ -39,14 +39,14 @@ class RegistUser():
 
                 return {'success': True, 'message': None, 'data': {'token': token}}
             except IntegrityError as e:
-                print(e)
+                # print(e)
                 return {'success': False, 'message': e.message}
             except Error as e:
-                print(e)
+                # print(e)
                 return {'success': False, 'message': e.message}
 
         else:
-            print('serializers에서 잘못되었음')
+            # print('serializers에서 잘못되었음')
             return {'success': False, 'message': common.serializer_error_message(self.request_data.errors)}
 
     def __is_duplicate_email(self):

@@ -44,9 +44,10 @@ class SearchSample:
     s = s.filter(f)
     response = s.sort('created_at').execute()
 
-    print(response)
+    # print(response)
     for hit in response:
-      print(hit.name)
+      # print(hit.name)
+      pass
 
 
 
