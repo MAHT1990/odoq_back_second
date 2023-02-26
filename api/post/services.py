@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 
 class GetPost:
     def __init__(self, request):
+        print('request.GET in post.services is ', request.GET)
         self.request = request
         self.page_number = request.GET.get('pageNumber', 1)
         self.page_size = request.GET.get('pageSize', 7)
@@ -25,9 +26,15 @@ class GetPost:
                 'blind': post.blind,
                 'blind_text': post.blind_text,
             })
-        pagenation = Paginator(list_temp_posts, self.page_size)
-        list_result_posts = pagenation.page(self.page_number).object_list
-        self.data['posts'] = list_result_posts
+        pagination = Paginator(list_temp_posts, self.page_size)
+        try:
+            list_result_posts = pagination.page(self.page_number).object_list
+            self.data['posts'] = list_result_posts
+            self.data['current_page'] = pagination.page(self.page_number).number
+            self.data['total_pages'] = pagination.num_pages
+            self.data['total_posts'] = pagination.count
+        except :
+            print('EmptyPage')
 
     def make_data(self):
         self._get_dict_posts()
