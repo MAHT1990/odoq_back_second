@@ -41,7 +41,8 @@ ALLOWED_HOSTS = ['*']
 # CORS 관련
 CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:3000',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://3.34.127.148'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
