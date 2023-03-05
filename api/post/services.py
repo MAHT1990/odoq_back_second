@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 
 class GetPost:
     def __init__(self, request):
-        print('request.GET in post.services is ', request.GET)
+        # print('request.GET in post.services is ', request.GET)
         self.request = request
         self.page_number = request.GET.get('pageNumber', 1)
         self.page_size = request.GET.get('pageSize', 7)
@@ -36,7 +36,8 @@ class GetPost:
             self.data['total_pages'] = pagination.num_pages
             self.data['total_posts'] = pagination.count
         except :
-            print('EmptyPage')
+            # print('EmptyPage')
+            pass
 
     def make_data(self):
         self._get_dict_posts()
@@ -45,7 +46,7 @@ class GetPost:
 
 class LikePost:
     def __init__(self, request):
-        print('request.data in likePost is ', request.data)
+        # print('request.data in likePost is ', request.data)
         self.post_id = request.data.get('postId', None)
         self.user_id = request.data.get('userId', None)
 
