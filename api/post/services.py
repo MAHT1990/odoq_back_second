@@ -7,13 +7,19 @@ class GetPost:
         self.request = request
         self.page_number = request.GET.get('pageNumber', 1)
         self.page_size = request.GET.get('pageSize', 7)
+        self.filtering_flag = request.GET.get('filteringFlag', 'all')
+        self.user_id = request.GET.get('userId', None)
 
+        # print('self.filtering_flag is ', self.filtering_flag, type(self.filtering_flag))
+        # print('self.user_id is ', self.user_id, type(self.user_id))
         self.data = {
             'posts': [],
         }
 
     def _get_dict_posts(self):
         queryset_post = OdoqModels.Post.objects.all()
+        if self.filtering_flag == 'my':
+            queryset_post = queryset_post.filter(user_id=self.user_id)
         list_temp_posts = []
         for post in queryset_post:
             list_temp_posts.append({
