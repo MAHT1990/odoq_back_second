@@ -1,4 +1,5 @@
 import odoq_models.models as OdoqModels
+import datetime
 from django.core.paginator import Paginator
 
 class GetPost:
@@ -7,19 +8,36 @@ class GetPost:
         self.request = request
         self.page_number = request.GET.get('pageNumber', 1)
         self.page_size = request.GET.get('pageSize', 7)
-        self.filtering_flag = request.GET.get('filteringFlag', 'all')
-        self.user_id = request.GET.get('userId', None)
+        self.filtering_flag = request.GET.get(
+            'filteringFlag',
+            request.data.get('filteringFlag', 'all')
+        )
+        self.ordering_flag = request.GET.get('orderingFlag', 'latest')
+        self.user_id = request.GET.get(
+            'userId',
+            request.data.get('user', '')
+        )
 
+        # print('self.ordering_flag is ', self.ordering_flag, type(self.ordering_flag))
+        # print('self.filtering_flag is ', self.filtering_flag, type(self.filtering_flag))
         # print('self.filtering_flag is ', self.filtering_flag, type(self.filtering_flag))
         # print('self.user_id is ', self.user_id, type(self.user_id))
-        self.data = {
-            'posts': [],
-        }
+        self.data = {}
 
-    def _get_dict_posts(self):
+    def _get_list_posts(self):
+        '''
+        게시글을 가져오는 함수
+        filtering_flag에 따라서 '전체' 또는 '나의' 게시글을 가져온다.
+        '''
+        # filtering
         queryset_post = OdoqModels.Post.objects.all()
+
         if self.filtering_flag == 'my':
             queryset_post = queryset_post.filter(user_id=self.user_id)
+
+        # ordering
+        if self.ordering_flag == 'likeCount':
+            queryset_post = queryset_post.order_by('-like_count', '-created_at')
         list_temp_posts = []
         for post in queryset_post:
             list_temp_posts.append({
@@ -29,24 +47,27 @@ class GetPost:
                 'content': post.content,
                 'like_count': post.like_count,
                 'liked_users': [user.id for user in post.liked_users.all()],
-                'created_at': post.created_at,
-                'updated_at': post.updated_at,
+                'created_at': post.created_at + datetime.timedelta(hours=9),
+                'updated_at': post.updated_at + datetime.timedelta(hours=9),
                 'blind': post.blind,
                 'blind_text': post.blind_text,
             })
-        pagination = Paginator(list_temp_posts, self.page_size)
+        self.posts = list_temp_posts
+
+    def make_data(self):
+        self._get_list_posts()
         try:
+            pagination = Paginator(self.posts, self.page_size)
             list_result_posts = pagination.page(self.page_number).object_list
             self.data['posts'] = list_result_posts
             self.data['current_page'] = pagination.page(self.page_number).number
             self.data['total_pages'] = pagination.num_pages
             self.data['total_posts'] = pagination.count
+            self.data['today_posts'] = len(list(filter(lambda x: x['created_at'].date() == datetime.date.today(), self.posts)))
         except :
+            # TODO: 아마도 today_posts에서 예외처리가 필요할 수도.
             # print('EmptyPage')
             pass
-
-    def make_data(self):
-        self._get_dict_posts()
         # print(self.data)
         return self.data
 

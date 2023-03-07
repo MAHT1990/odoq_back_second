@@ -15,6 +15,19 @@ class QuestionAdmin(admin.ModelAdmin):
         'created_at',
     ]
 
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'user',
+        'content',
+        'like_count',
+        'created_at',
+        'updated_at',
+        'blind',
+        'blind_text',
+    ]
+
 # Register your models here.
 
 # Register your models here.
