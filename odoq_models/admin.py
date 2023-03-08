@@ -28,6 +28,16 @@ class PostAdmin(admin.ModelAdmin):
         'blind_text',
     ]
 
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'email',
+        'name',
+        'phone',
+        'created_at',
+    ]
+
 # Register your models here.
 
 # Register your models here.
