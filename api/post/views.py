@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from common._RES import makeResponse
-import odoq_models.models as OdoqModels
 from . import services, serializers
+from middleware.CSRF import csrf_decorator
 
 class PostView(APIView):
     def get(self, request):
@@ -14,6 +14,7 @@ class PostView(APIView):
         )
         return response
 
+    @csrf_decorator
     def post(self, request):
         # print('createPost get called')
         # print('request.data is ', request.data)
@@ -31,7 +32,7 @@ class PostView(APIView):
         )
         return response
 
-
+    @csrf_decorator
     def patch(self, request):
         '''
         좋아요 및 게시글의 수정을 담당하는 함수

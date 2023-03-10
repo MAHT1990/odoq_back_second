@@ -43,6 +43,7 @@ class GetPost:
             list_temp_posts.append({
                 'id': post.id,
                 'user_id': post.user.id,
+                'user_grade': post.user.grade,
                 'user_name': post.user.name,
                 'content': post.content,
                 'like_count': post.like_count,

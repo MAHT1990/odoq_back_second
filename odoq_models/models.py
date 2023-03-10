@@ -7,6 +7,7 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     encrypted_password = models.CharField(max_length=255, null=True)
     name = models.CharField(max_length=255)
+    grade = models.IntegerField(default=0)
     phone = models.CharField(max_length=255)
     like_posts = models.ManyToManyField('Post', blank=True, default=None, related_name='liked_users')
     # liked_cocomments = models.ManyToManyField('Cocomment', blank=True, default=None)

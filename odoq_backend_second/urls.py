@@ -44,10 +44,15 @@ urlpatterns_post = [
     path('api/post/', api.post.views.PostView.as_view()),
 ]
 
+urlpatterns_sms = [
+    path('api/sms/', api.sms.views.SMSView.as_view()),
+]
+
 urlpatterns += urlpatterns_csrf
 urlpatterns += urlpatterns_user
 urlpatterns += urlpatterns_question
 urlpatterns += urlpatterns_post
+urlpatterns += urlpatterns_sms
 
 # Media
 if settings.DEBUG:

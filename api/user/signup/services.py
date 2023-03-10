@@ -27,6 +27,7 @@ class RegistUser():
                         email=self.request_data.data['email'],
                         encrypted_password=encrypted_password,
                         name=self.request_data.data['name'],
+                        grade = 0,
                         phone=self.request_data.data['phone'],
                     )
                     user.save()
@@ -35,7 +36,7 @@ class RegistUser():
                     return {'success': True, 'message': '오류가 발생했습니다. 다시 시도해주세요'}
 
                 # 로그인
-                token = JWT.sign(user.id, 0, user.name)
+                token = JWT.sign(user.id, user.grade, user.name)
 
                 return {'success': True, 'message': None, 'data': {'token': token}}
             except IntegrityError as e:

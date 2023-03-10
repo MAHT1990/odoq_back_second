@@ -35,6 +35,7 @@ class UserAdmin(admin.ModelAdmin):
         'email',
         'name',
         'phone',
+        'grade',
         'created_at',
     ]
 
