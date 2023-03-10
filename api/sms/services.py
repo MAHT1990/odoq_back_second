@@ -37,7 +37,7 @@ class SendStudentSMS():
             target_phone_query_set = OdoqModels.User.objects.filter(grade=0)
             target_phone_list = [user.phone for user in target_phone_query_set]
             print('target_phone_list in SendStudentSMS Service: ', target_phone_list)
-            content = f"{self.request_data.data['content']}, {self.request_data.data['url']}"
+            content = f"{self.request_data.data['content']} {self.request_data.data['url']}"
             print('content in SendStudentSMS Service to student: ', content)
 
             for target_phone in target_phone_list:
