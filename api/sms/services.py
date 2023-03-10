@@ -11,13 +11,13 @@ class SendAuthorSMS():
             # target_phone = self.request_data.data['phone']
             target_phone_query_set = OdoqModels.User.objects.filter(grade=1)
             target_phone_list = [user.phone for user in target_phone_query_set]
-            print('target_phone_list in SendAuthorSMS Service: ', target_phone_list)
+            # print('target_phone_list in SendAuthorSMS Service: ', target_phone_list)
             content = f"제출 답안수는 {self.request_data.data['answerCount']} 입니다."
-            print(content)
+            # print(content)
 
             for target_phone in target_phone_list:
                 result = OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
-                print(result)
+                # print(result)
             # result = OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
 
             # if result:
@@ -36,13 +36,13 @@ class SendStudentSMS():
             # target_phone = self.request_data.data['phone']
             target_phone_query_set = OdoqModels.User.objects.filter(grade=0)
             target_phone_list = [user.phone for user in target_phone_query_set]
-            print('target_phone_list in SendStudentSMS Service: ', target_phone_list)
+            # print('target_phone_list in SendStudentSMS Service: ', target_phone_list)
             content = f"{self.request_data.data['content']} {self.request_data.data['url']}"
-            print('content in SendStudentSMS Service to student: ', content)
+            # print('content in SendStudentSMS Service to student: ', content)
 
             for target_phone in target_phone_list:
                 result = OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
-                print(result)
+                # print(result)
             # result = OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
 
             # if result:
