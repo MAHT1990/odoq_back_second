@@ -6,7 +6,10 @@ from middleware.CSRF import csrf_decorator
 class SMSView(APIView):
     @csrf_decorator
     def post(self, request):
-        result = services.SendAuthorSMS(request.data)()
+        if (request.data['target'] == 'author'):
+            result = services.SendAuthorSMS(request.data)()
+        if (request.data['target'] == 'student'):
+            result = services.SendStudentSMS(request.data)()
 
         return makeResponse(
             'success' if result['success'] else 'error',
