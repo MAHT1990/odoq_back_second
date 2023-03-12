@@ -29,6 +29,7 @@ SECRET_KEY = secrets['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (secrets['DEBUG'] == 'True')
 
+# ALIGO 관련.
 ALIGO = {
     'API_KEY': 'dtwkui1b8e5yux73rl5e5c3g666yt861',
     'USER_ID': 'aloe89',
