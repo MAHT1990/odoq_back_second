@@ -1,5 +1,6 @@
 import sched, time
 from utils import common
+from datetime import datetime, timedelta
 import odoq_models.models as OdoqModels
 import api.question as Question
 import threading
@@ -49,9 +50,22 @@ class SendSMS():
 
 
 def start_scheduler():
-
     sms_scheduler = sched.scheduler(time.time, time.sleep)
 
+    def send_sms():
+        # send sms every 23:55pm
+        now = datetime.now()
+        target_time = datetime(now.year, now.month, now.day, 23, 55, 0)
+        if now > target_time:
+            target_time += timedelta(days=1)
+        SendSMS().send_author_sms()
+        SendSMS().send_student_sms()
+        sms_scheduler.enter((target_time - now).total_seconds(), 1, send_sms)
+
+    sms_scheduler.enter(10, 1, send_sms)
+    thread = threading.Thread(target=sms_scheduler.run)
+    thread.daemon = True
+    thread.start()
 
 def start_test_scheduler():
     test_scheduler = sched.scheduler(time.time, time.sleep)

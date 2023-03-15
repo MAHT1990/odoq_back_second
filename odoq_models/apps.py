@@ -9,6 +9,7 @@ class OdoqModelsConfig(AppConfig):
     def ready(self):
         print('odoq_models ready')
         if not self.ready_has_run:
-            from utils.schedulers import start_test_scheduler
+            from utils.schedulers import start_test_scheduler, start_scheduler
             start_test_scheduler()
+            start_scheduler()
             self.ready_has_run = True
