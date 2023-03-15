@@ -7,7 +7,7 @@ import threading
 
 class SendSMS():
     def __init__(self):
-        self.question_data = Question.services.GetQuestion().make_data()
+        self.question_data = Question.services.GetQuestion({}).make_data()
         self.target_phone_list = []
 
     def _get_phone_list(self, grade):
@@ -55,7 +55,7 @@ def start_scheduler():
     def send_sms():
         # send sms every 23:55pm
         now = datetime.now()
-        target_time = datetime(now.year, now.month, now.day, 23, 55, 0)
+        target_time = datetime(now.year, now.month, now.day, 23, 59, 55)
         if now > target_time:
             target_time += timedelta(days=1)
         SendSMS().send_author_sms()
