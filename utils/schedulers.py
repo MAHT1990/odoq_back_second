@@ -22,11 +22,11 @@ class SendSMS():
             OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
 
     def send_author_sms(self):
-        print('sendAuthorSMS called and current Question is ', self.question_data)
+        # print('sendAuthorSMS called and current Question is ', self.question_data)
         if self.question_data:
             self._get_phone_list(1)
             if self.target_phone_list:
-                content = f"제출 답안수는 {self.question_data['answer_count']} 입니다."
+                content = f"답안수: {self.question_data['answer_count']} 입니다. \n 정답수: {self.question_data['solve_count']} \n 정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
                 self._send_sms(content)
                 return {'success': True, 'message': '메시지 발송을 성공하였습니다.'}
             else:
@@ -35,11 +35,11 @@ class SendSMS():
             return {'success': False, 'message': '문제 Data가 존재하지 않습니다.'}
 
     def send_student_sms(self):
-        print('sendStudendSMS called and current Question is ', self.question_data)
+        # print('sendStudendSMS called and current Question is ', self.question_data)
         if self.question_data:
             self._get_phone_list(0)
             if self.target_phone_list:
-                content = f"제출 답안수는 {self.question_data['answer_count']} 입니다."
+                content = f"(TEST)식사는 하셨습니까?"
                 self._send_sms(content)
                 return {'success': True, 'message': '메시지 발송을 성공하였습니다.'}
             else:
@@ -53,8 +53,8 @@ def print_test_message():
 def start_scheduler():
     scheduler = BackgroundScheduler()
     # scheduler.add_jobstore(DjangoJobStore(), "djangojobstore")
-    scheduler.add_job(SendSMS().send_student_sms, replace_existing=True, trigger='interval', seconds=10, id='send_student_sms')
-    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='interval', seconds=10, id='send_author_sms')
+    scheduler.add_job(SendSMS().send_student_sms, replace_existing=True, trigger='cron', hour=12, minute=00, id='send_student_sms')
+    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='cron', hour=23, minute=20, second=00, id='send_author_sms')
     register_events(scheduler)
     scheduler.start()
 
