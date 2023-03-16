@@ -26,7 +26,11 @@ class SendSMS():
         if self.question_data:
             self._get_phone_list(1)
             if self.target_phone_list:
-                content = f"답안수: {self.question_data['answer_count']} 입니다. \n 정답수: {self.question_data['solve_count']} \n 정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
+                try:
+                    content = f"답안수: {self.question_data['answer_count']} 입니다. \n 정답수: {self.question_data['solve_count']} \n 정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
+                except ZeroDivisionError:
+                    content = f"답안수: {self.question_data['answer_count']} 입니다. \n 정답수: {self.question_data['solve_count']} \n 정답률: 0%"
+
                 self._send_sms(content)
                 return {'success': True, 'message': '메시지 발송을 성공하였습니다.'}
             else:
@@ -54,7 +58,7 @@ def start_scheduler():
     scheduler = BackgroundScheduler()
     # scheduler.add_jobstore(DjangoJobStore(), "djangojobstore")
     scheduler.add_job(SendSMS().send_student_sms, replace_existing=True, trigger='cron', hour=12, minute=00, id='send_student_sms')
-    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='cron', hour=23, minute=20, second=00, id='send_author_sms')
+    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='cron', hour=23, minute=23, second=00, id='send_author_sms')
     register_events(scheduler)
     scheduler.start()
 
