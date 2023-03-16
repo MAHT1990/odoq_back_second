@@ -10,7 +10,7 @@ class OdoqSchedulerConfig(AppConfig):
     def ready(self):
         if settings.SCHEDULER_DEFAULT and not self.has_started:
             from utils import schedulers
-            schedulers.start_test_scheduler()
+            schedulers.start_scheduler()
             self.has_started = True
 
 

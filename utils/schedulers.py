@@ -50,10 +50,11 @@ class SendSMS():
 def print_test_message():
     print('test message', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-def start_test_scheduler():
+def start_scheduler():
     scheduler = BackgroundScheduler()
     # scheduler.add_jobstore(DjangoJobStore(), "djangojobstore")
-    scheduler.add_job(print_test_message, replace_existing=True, trigger='interval', seconds=10, id='test_job')
+    scheduler.add_job(SendSMS().send_student_sms, replace_existing=True, trigger='interval', seconds=10, id='send_student_sms')
+    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='interval', seconds=10, id='send_author_sms')
     register_events(scheduler)
     scheduler.start()
 
