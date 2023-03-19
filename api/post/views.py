@@ -52,6 +52,17 @@ class PostView(APIView):
         elif flag == 'update':
             pass
 
+        elif flag == 'blind':
+            result = services.BlindPost(request).make_data()
+            # print('result of blind functionality is ', result)
+            if result['success']:
+                if result['blind']:
+                    result_message = '게시글이 비공개 처리되었습니다.'
+                else:
+                    result_message = '게시글이 공개 처리되었습니다.'
+            else:
+                result_message = '게시글 처리에 실패했습니다.'
+
         response = makeResponse(
             'success',
             result_message,

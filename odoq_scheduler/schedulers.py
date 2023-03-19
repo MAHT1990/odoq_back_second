@@ -50,7 +50,8 @@ class SendSMS():
         return self._send_sms(content, 0)
 
 def print_test_message():
-    print('test message', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    # print('test message', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    pass
 
 def start_scheduler():
     scheduler = BackgroundScheduler()

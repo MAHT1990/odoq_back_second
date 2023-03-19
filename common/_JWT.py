@@ -12,6 +12,7 @@ class JWT():
     data = {}
     data['info'] = "{}_{}_{}".format(id, grade, name)
     data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(days=3)
+    # print('common / _JWT > JWT > sign', data)
     # 토큰 유효시간 ( 기본 설정 3일 )
     return jwt.encode(data, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 

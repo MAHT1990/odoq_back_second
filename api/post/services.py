@@ -77,6 +77,9 @@ class LikePost:
         # print('request.data in likePost is ', request.data)
         self.post_id = request.data.get('postId', None)
         self.user_id = request.data.get('userId', None)
+        # print('post/services.py > LikePost self.post_id is ', self.post_id, type(self.post_id))
+        # print('post/services.py > LikePost self.user_id is ', self.user_id, type(self.user_id))
+
 
     def _like_post(self):
         if self.post_id is not None and self.user_id is not None:
@@ -107,4 +110,31 @@ class LikePost:
 
     def make_data(self):
         self._like_post();
+        return self.data
+
+class BlindPost:
+    def __init__(self, request):
+        self.post_id = request.data.get('postId', None)
+        self.user_grade = request.data.get('userGrade', None)
+
+    def _blind_post(self):
+        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
+        if self.post_id is not None:
+            post = OdoqModels.Post.objects.get(id=self.post_id)
+            post.blind = not post.blind
+            post.blind_text = '관리자에 의해 삭제된 게시글입니다.' if self.user_grade == 2 else post.blind_text
+            post.save()
+            self.data = {
+                'success': True,
+                'blind': post.blind,
+                'blind_text': post.blind_text,
+                'post_id': self.post_id,
+            }
+            # print('post/services.py > BlindPost self.data is ', self.data)
+        else:
+            self.data = {
+                'success': False,
+            }
+    def make_data(self):
+        self._blind_post()
         return self.data

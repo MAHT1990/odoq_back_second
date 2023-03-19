@@ -24,7 +24,7 @@ class LoginUserModel(APIView):
     if users.count() > 0:
       for user in users:
         if ENCRYPT.validate(password, user.encrypted_password):
-          token = JWT.sign(user.id, 0, user.name)
+          token = JWT.sign(user.id, user.grade, user.name)
           return makeResponse(
             'success',
             '',
