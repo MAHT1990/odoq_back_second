@@ -11,7 +11,9 @@ class User(models.Model):
     phone = models.CharField(max_length=255)
     like_posts = models.ManyToManyField('Post', blank=True, default=None, related_name='liked_users')
     # liked_cocomments = models.ManyToManyField('Cocomment', blank=True, default=None)
-    solved_questions = models.ManyToManyField('Question', blank=True, default=None)
+    answered_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='answered_users')
+    solved_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='solved_users')
+    accept_sms = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 # SMS 인증 관련.
@@ -115,6 +117,19 @@ class SmsHistory(models.Model):
             pass
         return -1
 
+class Notice(models.Model):
+    season = models.CharField(max_length=255)
+    img = models.ImageField(null=True)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        ordering = ["-created_at"]
+
 class Question(models.Model):
     code = models.CharField(max_length=255)
     season = models.CharField(max_length=255)
@@ -131,6 +146,18 @@ class Question(models.Model):
     def __str__(self):
         return self.code
 
+class AnswerHistory(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=255)
+    isSolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+    def __str__(self):
+        return self.answer
 class Post(models.Model):
     # Question과 Comment는 1 : n 의 관계이다.
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -54,11 +54,13 @@ class GetQuestion:
         else:
             self.question, self.second_remain = None, None
 
+        return self.question
 
     def make_data(self):
         self._get_question()
         try:
             self.data = {
+                'id': self.question.id,
                 'code': self.question.code,
                 'season': self.question.season,
                 'img_url': self.question.img.url,
@@ -71,5 +73,115 @@ class GetQuestion:
             # print(e)
             self.data = None
         # print(self.data)
+        print('api/question/services.py > GetQuestion > self.data', self.data)
         return self.data
 
+class GetAnswerHistory:
+    def __init__(self, request):
+        self.request = request
+        if (request.GET.get('userId', None) != '0'):
+            self.user_id = request.GET.get('userId', None)
+        else:
+            self.user_id = None
+        if (request.GET.get('questionId', None) != '0'):
+            self.question_id = request.GET.get('questionId', None)
+        else:
+            self.question_id = None
+        print('api/question/services.py > GetAnswerHistory > self.user_id, self.question_id', self.user_id, self.question_id)
+
+    def _get_can_answer_remain_time(self):
+        if self.user_id is not None and self.question_id is not None:
+            user = OdoqModels.User.objects.get(id=self.user_id)
+            question = OdoqModels.Question.objects.get(id=self.question_id)
+            question_answer_history = OdoqModels.AnswerHistory.objects.filter(
+                user=user,
+                question=question,
+            ).order_by('-created_at')
+            can_answer_remain_time = \
+                (30 * len(question_answer_history) - 15) - (
+                        datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
+                ).total_seconds() if len(question_answer_history) > 0 else 0
+            self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+        else:
+            self.can_answer_remain_time = 0
+        print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
+
+    def make_data(self):
+        self._get_can_answer_remain_time()
+        self.data = {
+            'can_answer_remain_time': self.can_answer_remain_time,
+        }
+        # print(self.data)
+        return self.data
+
+class AnswerPost:
+    def __init__(self, request):
+        self.request = request
+        self.question_id = request.data.get('questionId', None)
+        self.user_id = request.data.get('userId', None)
+        self.answer = request.data.get('answer', None)
+
+    def _answer_post(self):
+        if self.question_id is not None and self.user_id is not None and self.answer is not None:
+            question, user = OdoqModels.Question.objects.get(id=self.question_id), OdoqModels.User.objects.get(id=self.user_id)
+            OdoqModels.AnswerHistory.objects.create(
+                question=question,
+                user=user,
+                answer=self.answer,
+                isSolved=question.answer == self.answer,
+            )
+            question_history = OdoqModels.AnswerHistory.objects.filter(
+                question=question,
+                user=user,
+            )
+            is_written = False
+            can_answer_remain_time = 15 #seconds
+            print('api/question/services.py > AnswerPost > question, user', question, user)
+            print('api/question/services.py > AnswerPost > user.answered_questions', user.answered_questions.all())
+            print('api/question/services.py > AnswerPost > user.solved_questions', user.solved_questions.all())
+            print('api/question/services.py > AnswerPost > question_history', question_history)
+            print('api/question/services.py > AnswerPost > question_history.count()', question_history.count())
+            print('api/question/services.py > AnswerPost > len(question_history)', len(question_history))
+
+            # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
+            # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
+            if len(question_history) < 6 and question not in user.solved_questions.all():
+                question.answer_count += 1
+                user.answered_questions.add(question)
+                is_written = True
+
+                if question.answer == self.answer:
+                    question.solve_count += 1
+                    user.solved_questions.add(question)
+                else:
+                    can_answer_remain_time = \
+                        (30 * len(question_history) - 15) - (
+                                datetime.datetime.now(tz=datetime.timezone.utc) - question_history[0].created_at
+                        ).total_seconds()
+                    if can_answer_remain_time < 0:
+                        can_answer_remain_time = 0
+
+                question.save(), user.save()
+
+            else:
+                can_answer_remain_time = \
+                    (30 * len(question_history) - 15) - (
+                                datetime.datetime.now(tz=datetime.timezone.utc) - question_history[0].created_at
+                    ).total_seconds()
+                if can_answer_remain_time < 0:
+                    can_answer_remain_time = 0
+
+            self.data = {
+                'is_written': is_written,
+                'answer_count': question.answer_count,
+                'solve_count': question.solve_count,
+                'can_answer_remain_time': can_answer_remain_time,
+            }
+        else:
+            self.data = None
+
+
+
+    def make_data(self):
+        self._answer_post()
+        return self.data

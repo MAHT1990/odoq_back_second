@@ -29,6 +29,7 @@ urlpatterns_csrf = [
 
 urlpatterns_user = [
     path('api/user/', api.user.views.index),
+    path('api/user/accept_sms/', api.user.accept_sms.views.AcceptSMS.as_view()),
     path('api/user/login/', api.user.login.views.LoginUserModel.as_view()),
     path('api/user/signup/', api.user.login.views.index),
     path('api/user/signup/send_sms_auth/', api.user.signup.views.SendSMSAuth.as_view()),
@@ -36,8 +37,13 @@ urlpatterns_user = [
     path('api/user/signup/create/', api.user.signup.views.RegistUser.as_view()),
 ]
 
+urlpatterns_notice = [
+    path('api/notice/', api.notice.views.NoticeView.as_view()),
+]
+
 urlpatterns_question = [
-    path('api/question/', api.question.views.GetQuestion.as_view()),
+    path('api/question/', api.question.views.QuestionView.as_view()),
+    path('api/question/answer_history/', api.question.views.AnswerHistoryView.as_view()),
 ]
 
 urlpatterns_post = [
@@ -53,6 +59,7 @@ urlpatterns += urlpatterns_user
 urlpatterns += urlpatterns_question
 urlpatterns += urlpatterns_post
 urlpatterns += urlpatterns_sms
+urlpatterns += urlpatterns_notice
 
 # Media
 if settings.DEBUG:
