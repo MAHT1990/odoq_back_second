@@ -47,6 +47,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3001',
     'http://3.34.127.148',
     'http://3.34.214.77',
+    'http://3.37.126.254/',
     'http://25.46.18.218:3001'
 ]
 
