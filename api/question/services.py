@@ -73,7 +73,7 @@ class GetQuestion:
             # print(e)
             self.data = None
         # print(self.data)
-        print('api/question/services.py > GetQuestion > self.data', self.data)
+        # print('api/question/services.py > GetQuestion > self.data', self.data)
         return self.data
 
 class GetAnswerHistory:
@@ -87,7 +87,7 @@ class GetAnswerHistory:
             self.question_id = request.GET.get('questionId', None)
         else:
             self.question_id = None
-        print('api/question/services.py > GetAnswerHistory > self.user_id, self.question_id', self.user_id, self.question_id)
+        # print('api/question/services.py > GetAnswerHistory > self.user_id, self.question_id', self.user_id, self.question_id)
 
     def _get_can_answer_remain_time(self):
         if self.user_id is not None and self.question_id is not None:
@@ -104,7 +104,7 @@ class GetAnswerHistory:
             self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
         else:
             self.can_answer_remain_time = 0
-        print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
+        # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
 
     def make_data(self):
         self._get_can_answer_remain_time()
@@ -136,12 +136,12 @@ class AnswerPost:
             )
             is_written = False
             can_answer_remain_time = 15 #seconds
-            print('api/question/services.py > AnswerPost > question, user', question, user)
-            print('api/question/services.py > AnswerPost > user.answered_questions', user.answered_questions.all())
-            print('api/question/services.py > AnswerPost > user.solved_questions', user.solved_questions.all())
-            print('api/question/services.py > AnswerPost > question_history', question_history)
-            print('api/question/services.py > AnswerPost > question_history.count()', question_history.count())
-            print('api/question/services.py > AnswerPost > len(question_history)', len(question_history))
+            # print('api/question/services.py > AnswerPost > question, user', question, user)
+            # print('api/question/services.py > AnswerPost > user.answered_questions', user.answered_questions.all())
+            # print('api/question/services.py > AnswerPost > user.solved_questions', user.solved_questions.all())
+            # print('api/question/services.py > AnswerPost > question_history', question_history)
+            # print('api/question/services.py > AnswerPost > question_history.count()', question_history.count())
+            # print('api/question/services.py > AnswerPost > len(question_history)', len(question_history))
 
             # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
             # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
