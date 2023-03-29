@@ -46,7 +46,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://3.34.127.148',
     'http://3.34.214.77',
     'http://3.37.126.254',
-    'http://odoq2.com',
+    'https://odoq2.com',
     'http://25.46.18.218:3001'
 ]
 
