@@ -41,9 +41,9 @@ class SendSMS():
     def send_author_sms(self):
         # print('sendAuthorSMS called and current Question is ', self.question_data)
         try:
-            content = f"답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
+            content = f"(ODOQ)\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
         except ZeroDivisionError:
-            content = f"답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: 0%"
+            content = f"(ODOQ)\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: 0%"
         return self._send_sms(content, 1)
 
     def send_student_sms(self):
