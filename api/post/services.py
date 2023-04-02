@@ -48,8 +48,8 @@ class GetPost:
                 'content': post.content,
                 'like_count': post.like_count,
                 'liked_users': [user.id for user in post.liked_users.all()],
-                'created_at': post.created_at + datetime.timedelta(hours=9),
-                'updated_at': post.updated_at + datetime.timedelta(hours=9),
+                'created_at': post.created_at,
+                'updated_at': post.updated_at,
                 'blind': post.blind,
                 'blind_text': post.blind_text,
             })
@@ -122,7 +122,7 @@ class BlindPost:
         if self.post_id is not None:
             post = OdoqModels.Post.objects.get(id=self.post_id)
             post.blind = not post.blind
-            post.blind_text = '관리자에 의해 삭제된 게시글입니다.' if self.user_grade == 2 else post.blind_text
+            post.blind_text = '관리자에 의해 블라인드 처리되었습니다.' if self.user_grade == 2 else post.blind_text
             post.save()
             self.data = {
                 'success': True,
