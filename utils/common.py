@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 import odoq_models.models as OdoqModels
+from django.db.models import Q
 
 
 
@@ -27,3 +28,9 @@ def serializer_error_message(errors):
     return ','.join(np.array(messages).flatten()) if messages else ''
   else:
     return ''
+
+def get_author_phone_numbers():
+  # get phone_numbers of authors or admin (grade = 1 or 2)
+  author_phone_numbers = OdoqModels.User.objects.filter(Q(grade=1) | Q(grade=2)).values_list('phone', flat=True)
+
+  return author_phone_numbers

@@ -1,5 +1,6 @@
 import odoq_models.models as OdoqModels
 import datetime
+from utils.common import get_author_phone_numbers
 
 class GetQuestion:
     def __init__(self, request):
@@ -130,33 +131,58 @@ class AnswerPost:
                 answer=self.answer,
                 isSolved=question.answer == self.answer,
             )
-            question_history = OdoqModels.AnswerHistory.objects.filter(
+            question_user_history = OdoqModels.AnswerHistory.objects.filter(
                 question=question,
                 user=user,
             )
+
+
+            # print('api/question/services.py > AnswerPost > question_user_history', question_user_history)
+            # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
+            # if len(question_user_history) == 0:
+            #     OdoqModels.SmsHistory.send_message
             is_written = False
             can_answer_remain_time = 15 #seconds
             # print('api/question/services.py > AnswerPost > question, user', question, user)
             # print('api/question/services.py > AnswerPost > user.answered_questions', user.answered_questions.all())
             # print('api/question/services.py > AnswerPost > user.solved_questions', user.solved_questions.all())
-            # print('api/question/services.py > AnswerPost > question_history', question_history)
-            # print('api/question/services.py > AnswerPost > question_history.count()', question_history.count())
-            # print('api/question/services.py > AnswerPost > len(question_history)', len(question_history))
+            # print('api/question/services.py > AnswerPost > question_user_history', question_user_history)
+            # print('api/question/services.py > AnswerPost > question_user_history.count()', question_user_history.count())
+            # print('api/question/services.py > AnswerPost > len(question_user_history)', len(question_user_history))
 
             # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
             # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
-            if len(question_history) < 6 and question not in user.solved_questions.all():
+            if len(question_user_history) < 6 and question not in user.solved_questions.all():
                 question.answer_count += 1
                 user.answered_questions.add(question)
                 is_written = True
 
+                # print('## question.answer', question.answer)
+                # print('## self.answer', self.answer)
+                # print('## question.answer == self.answer', question.answer == self.answer)
                 if question.answer == self.answer:
                     question.solve_count += 1
                     user.solved_questions.add(question)
+
+                    question_solve_history = OdoqModels.AnswerHistory.objects.filter(
+                        question=question,
+                        answer=question.answer,
+                    ).order_by('-created_at')
+                    # print('## api/question/services.py > AnswerPost > question_solve_history', question_solve_history)
+
+                    if len(question_solve_history) == 1:
+                        # print('api/question/services.py > AnswerPost > question_solve_history', question_solve_history)
+                        # print('첫번째 정답이 등록되었습니다')
+                        for phone_number in get_author_phone_numbers():
+                            OdoqModels.SmsHistory.send_message(
+                                send_to=phone_number,
+                                is_auth=False,
+                                content=f'첫번째 정답이 등록되었습니다.\n{user.name}\n{user.phone}'
+                            )
                 else:
                     can_answer_remain_time = \
-                        (30 * len(question_history) - 15) - (
-                                datetime.datetime.now(tz=datetime.timezone.utc) - question_history[0].created_at
+                        (30 * len(question_user_history) - 15) - (
+                                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
                         ).total_seconds()
                     if can_answer_remain_time < 0:
                         can_answer_remain_time = 0
@@ -165,8 +191,8 @@ class AnswerPost:
 
             else:
                 can_answer_remain_time = \
-                    (30 * len(question_history) - 15) - (
-                                datetime.datetime.now(tz=datetime.timezone.utc) - question_history[0].created_at
+                    (30 * len(question_user_history) - 15) - (
+                                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
                     ).total_seconds()
                 if can_answer_remain_time < 0:
                     can_answer_remain_time = 0
