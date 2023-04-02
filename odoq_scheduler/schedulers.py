@@ -2,8 +2,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.combining import AndTrigger
 from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+from django.db.models import Q
 import odoq_models.models as OdoqModels
 import api.question as Question
+from utils.common import get_author_phone_numbers, get_student_phone_numbers
 import datetime
 
 class SendSMS():
@@ -17,7 +19,7 @@ class SendSMS():
         '''
         :param grade: 0: student, 1: author
         '''
-        target_phone_query_set = OdoqModels.User.objects.filter(grade=grade)
+        target_phone_query_set = OdoqModels.User.objects.filter(grade=grade).filter(accept_sms=True)
         target_phone_list = [user.phone for user in target_phone_query_set]
         self.target_phone_list = target_phone_list
 

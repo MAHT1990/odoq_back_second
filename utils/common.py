@@ -30,7 +30,13 @@ def serializer_error_message(errors):
     return ''
 
 def get_author_phone_numbers():
-  # get phone_numbers of authors or admin (grade = 1 or 2)
-  author_phone_numbers = OdoqModels.User.objects.filter(Q(grade=1) | Q(grade=2)).values_list('phone', flat=True)
+  # get phone_numbers of authors or admin (grade = 1 or 2) and acceptSMS = True
+  author_phone_numbers = OdoqModels.User.objects.filter(Q(grade=1) | Q(grade=2)).filter(accept_sms=True).values_list('phone', flat=True)
 
   return author_phone_numbers
+
+def get_student_phone_numbers():
+    # get phone_numbers of students (grade = 0) and accept_sms = True
+    student_phone_numbers = OdoqModels.User.objects.filter(grade=0).filter(accept_sms=True).values_list('phone', flat=True)
+
+    return student_phone_numbers
