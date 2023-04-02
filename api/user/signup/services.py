@@ -20,6 +20,9 @@ class RegistUser():
             if self.__is_duplicate_phone():
                 return {'success': False, 'message': '이미 가입되어있는 연락처 입니다.'}
 
+            if self.__is_duplicate_name():
+                return {'success': False, 'message': '닉네임이 중복되었습니다.'}
+
             try:
                 with transaction.atomic():
                     encrypted_password = ENCRYPT.encrypt(self.request_data.data['password'])
@@ -60,6 +63,13 @@ class RegistUser():
         if super_admin is not None:
             return True
 
+        return False
+
+    def __is_duplicate_name(self):
+        name = self.request_data.data['name']
+        user = OdoqModels.User.objects.filter(name=name).first()
+        if user is not None:
+            return True
         return False
 
     def __is_duplicate_phone(self):
