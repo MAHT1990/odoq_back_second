@@ -1,4 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.combining import AndTrigger
+from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
 import odoq_models.models as OdoqModels
 import api.question as Question
@@ -46,7 +48,7 @@ class SendSMS():
 
     def send_student_sms(self):
         # print('sendStudentSMS called and current Question is ', self.question_data)
-        content = f"(TEST)식사는 하셨습니까?"
+        content = f"(ODOQ) \n 새로운 문제가 업로드 되었습니다. https://odoq2.com/"
         return self._send_sms(content, 0)
 
 def print_test_message():
@@ -55,10 +57,9 @@ def print_test_message():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # scheduler.add_jobstore(DjangoJobStore(), "djangojobstore")
-    scheduler.add_job(SendSMS().send_student_sms, replace_existing=True, trigger='cron', hour=12, minute=00, id='send_student_sms')
-    scheduler.add_job(SendSMS().send_author_sms, replace_existing=True, trigger='cron', hour=23, minute=59, second=50, id='send_author_sms')
+    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=00, minute=00, second=10)
+    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=50)
+    scheduler.add_job(SendSMS().send_student_sms, trigger=send_student_trigger, id='send_student_sms', replace_existing=True)
+    scheduler.add_job(SendSMS().send_author_sms, trigger=send_author_trigger, id='send_author_sms', replace_existing=True)
     register_events(scheduler)
     scheduler.start()
-
-
