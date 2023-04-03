@@ -64,7 +64,11 @@ class GetPost:
             self.data['current_page'] = pagination.page(self.page_number).number
             self.data['total_pages'] = pagination.num_pages
             self.data['total_posts'] = pagination.count
-            self.data['today_posts'] = len(list(filter(lambda x: x['created_at'].date() == datetime.date.today(), self.posts)))
+            self.data['today_posts'] = len(list(filter(
+                lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
+                )
+            ))
+
         except :
             # TODO: 아마도 today_posts에서 예외처리가 필요할 수도.
             # print('EmptyPage')
