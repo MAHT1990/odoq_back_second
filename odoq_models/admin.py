@@ -1,6 +1,16 @@
 from django.contrib import admin
 from .models import *
 
+@admin.register(SmsHistory)
+class SmsHistoryAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'sms_type',
+        'send_to',
+        'content',
+        'is_succeed',
+        'sent_at',
+    ]
 @admin.register(Notice)
 class NoticeAdmin(admin.ModelAdmin):
     list_display = [
@@ -40,6 +50,9 @@ class AnswerHistoryAdmin(admin.ModelAdmin):
         'isSolved',
         'created_at',
         'updated_at',
+    ]
+    list_display_links = [
+        'user',
     ]
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):

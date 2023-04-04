@@ -43,9 +43,9 @@ class SendSMS():
     def send_author_sms(self):
         # print('sendAuthorSMS called and current Question is ', self.question_data)
         try:
-            content = f"(ODOQ)\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
+            content = f"(ODOQ)\n문항: {self.question_data['code']}\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
         except ZeroDivisionError:
-            content = f"(ODOQ)\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: 0%"
+            content = f"(ODOQ)\n문항: {self.qeustion_data['code']}\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: 0%"
         return self._send_sms(content, 1)
 
     def send_student_sms(self):
@@ -60,7 +60,7 @@ def print_test_message():
 def start_scheduler():
     scheduler = BackgroundScheduler()
     send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=00, minute=00, second=10)
-    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=50)
+    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=00)
     scheduler.add_job(SendSMS().send_student_sms, trigger=send_student_trigger, id='send_student_sms', replace_existing=True)
     scheduler.add_job(SendSMS().send_author_sms, trigger=send_author_trigger, id='send_author_sms', replace_existing=True)
     register_events(scheduler)
