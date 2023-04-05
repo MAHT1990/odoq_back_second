@@ -19,7 +19,8 @@ class SendSMS():
         '''
         :param grade: 0: student, 1: author
         '''
-        target_phone_query_set = OdoqModels.User.objects.filter(grade=grade).filter(accept_sms=True)
+        # filter grade in array
+        target_phone_query_set = OdoqModels.User.objects.filter(Q(grade=grade) | Q(grade=2), accept_sms=True)
         target_phone_list = [user.phone for user in target_phone_query_set]
         self.target_phone_list = target_phone_list
 
