@@ -30,6 +30,7 @@ class SendSMS():
         :param content: str
         :param grade: 0: student, 1: author
         '''
+        self._get_question()
         if self.question_data:
             self._get_phone_list(grade)
             if self.target_phone_list:

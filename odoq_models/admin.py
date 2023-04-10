@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import *
+from django.utils.safestring import mark_safe
 
 @admin.register(SmsHistory)
 class SmsHistoryAdmin(admin.ModelAdmin):
@@ -28,7 +29,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'id',
         'code',
         'season',
-        'img',
+        'img_tag',
         'answer',
         'upload_datetime',
         'answer_count',
@@ -39,6 +40,12 @@ class QuestionAdmin(admin.ModelAdmin):
         'answer',
         'upload_datetime',
     ]
+
+    def img_tag(self, question):
+        if question.img:
+            return mark_safe(f'<a href="{question.img.url}" target="_blank" rel="noopener noreferrer"><img src="{question.img.url}" style="width:250px"/></a>')
+    class Meta:
+        ordering = ["-upload_datetime"]
 
 @admin.register(AnswerHistory)
 class AnswerHistoryAdmin(admin.ModelAdmin):
