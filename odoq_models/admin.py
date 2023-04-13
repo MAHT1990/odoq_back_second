@@ -52,15 +52,16 @@ class AnswerHistoryAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'question',
-        'user',
+        'user_name',
         'answer',
         'isSolved',
         'created_at',
-        'updated_at',
     ]
     list_display_links = [
-        'user',
+        'user_name',
     ]
+    def user_name(self, answer_history):
+        return answer_history.user.name
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = [
