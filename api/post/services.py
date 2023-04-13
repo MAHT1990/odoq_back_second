@@ -12,7 +12,10 @@ class GetPost:
             'filteringFlag',
             request.data.get('filteringFlag', 'all')
         )
-        self.ordering_flag = request.GET.get('orderingFlag', 'latest')
+        self.ordering_flag = request.GET.get(
+            'orderingFlag',
+            request.data.get('orderingFlag', 'latest')
+        )
         self.user_id = request.GET.get(
             'userId',
             request.data.get('user', '')
@@ -45,6 +48,7 @@ class GetPost:
                 'user_id': post.user.id,
                 'user_grade': post.user.grade,
                 'user_name': post.user.name,
+                'img_url': post.img.url if post.img else None,
                 'content': post.content,
                 'like_count': post.like_count,
                 'liked_users': [user.id for user in post.liked_users.all()],
