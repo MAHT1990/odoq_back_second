@@ -13,6 +13,7 @@ class QuestionView(APIView):
             result,
         )
         return response
+
     def post(self, request):
         # print('postquestion called')
         result = services.AnswerPost(request).make_data()
@@ -27,6 +28,7 @@ class QuestionView(APIView):
         )
         return response
 
+
 class AnswerHistoryView(APIView):
     def get(self, request):
         # print('getanswerhistory called')
@@ -37,6 +39,7 @@ class AnswerHistoryView(APIView):
             result,
         )
         return response
+
 
 class AnswerLiveView(APIView):
     def get(self, request):
