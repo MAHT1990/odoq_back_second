@@ -37,3 +37,14 @@ class AnswerHistoryView(APIView):
             result,
         )
         return response
+
+class AnswerLiveView(APIView):
+    def get(self, request):
+        # print('getanswerlive called')
+        result = services.GetAnswerLive(request).make_data()
+        response = makeResponse(
+            'success',
+            'AnswerLive is successfully loaded',
+            result,
+        )
+        return response
