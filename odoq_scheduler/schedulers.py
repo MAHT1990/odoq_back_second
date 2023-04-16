@@ -8,28 +8,27 @@ import api.question as Question
 from utils.common import get_author_phone_numbers, get_student_phone_numbers
 import datetime
 
-class SendSMS():
-    def __init__(self):
-        self.question_data = Question.services.GetQuestion({}).make_data()
-        self.target_phone_list = []
 
+class SendSMS:
     def _get_question(self):
         self.question_data = Question.services.GetQuestion({}).make_data()
+
     def _get_phone_list(self, grade):
-        '''
+        """
         :param grade: 0: student, 1: author
-        '''
-        # filter grade in array
+        :return: list
+        """
         target_phone_query_set = OdoqModels.User.objects.filter(Q(grade=grade) | Q(grade=2), accept_sms=True)
         target_phone_list = [user.phone for user in target_phone_query_set]
         self.target_phone_list = target_phone_list
 
     def _send_sms(self, content, grade):
-        '''
+        """
         description: send sms to target phone list
         :param content: str
         :param grade: 0: student, 1: author
-        '''
+        :return: dict
+        """
         self._get_question()
         if self.question_data:
             self._get_phone_list(grade)
@@ -55,15 +54,29 @@ class SendSMS():
         content = f"(ODOQ) \n 새로운 문제가 업로드 되었습니다. https://odoq2.com/"
         return self._send_sms(content, 0)
 
-def print_test_message():
-    # print('test message', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    pass
+    def _get_test_message(self):
+        self.test = datetime.datetime.now()
+
+    def print_test_message(self):
+        self._get_question()
+        self._get_test_message()
+        # print('question_data', self.question_data)
+        # print('test message', self.test)
+
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=00, minute=00, second=10)
-    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=00)
-    scheduler.add_job(SendSMS().send_student_sms, trigger=send_student_trigger, id='send_student_sms', replace_existing=True)
-    scheduler.add_job(SendSMS().send_author_sms, trigger=send_author_trigger, id='send_author_sms', replace_existing=True)
-    register_events(scheduler)
+    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=00, minute=00, second=15, jitter=10)
+    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=00, jitter=30)
+
+    scheduler.add_job(SendSMS().send_student_sms,
+                      trigger=send_student_trigger,
+                      id='send_student_sms',
+                      replace_existing=True)
+    scheduler.add_job(SendSMS().send_author_sms,
+                      trigger=send_author_trigger,
+                      id='send_author_sms',
+                      misfire_grace_time=None,
+                      replace_existing=True)
+    # scheduler.add_job(SendSMS().print_test_message, 'interval', seconds=10, id='test_message')
     scheduler.start()

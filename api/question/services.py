@@ -2,6 +2,7 @@ import odoq_models.models as OdoqModels
 import datetime
 from utils.common import get_author_phone_numbers
 
+
 class GetQuestion:
     def __init__(self, request):
         self.request = request
@@ -77,6 +78,7 @@ class GetQuestion:
         # print('api/question/services.py > GetQuestion > self.data', self.data)
         return self.data
 
+
 class GetAnswerHistory:
     def __init__(self, request):
         self.request = request
@@ -114,6 +116,43 @@ class GetAnswerHistory:
         }
         # print(self.data)
         return self.data
+
+
+class GetAnswerLive:
+    def __init__(self, request):
+        self.request = request
+        if request.GET.get('questionId', None) != '0':
+            self.question_id = request.GET.get('questionId', None)
+        else:
+            self.question_id = None
+
+    def _get_answer_live(self):
+        if self.question_id is not None:
+            question = OdoqModels.Question.objects.get(id=self.question_id)
+            self.answer_live = OdoqModels.AnswerHistory.objects.filter(
+                question=question,
+            ).order_by('-created_at')
+        else:
+            self.answer_live = None
+
+    def make_data(self):
+        self._get_answer_live()
+        if self.answer_live is not None:
+            self.data = {
+                'answers': [
+                    {
+                        'user_name': answer.user.name,
+                        'answer': answer.answer,
+                        'is_solved': answer.isSolved,
+                        'created_at': answer.created_at,
+                    } for answer in self.answer_live
+                ]
+            }
+        else:
+            self.data = None
+
+        return self.data
+
 
 class AnswerPost:
     def __init__(self, request):
@@ -205,8 +244,6 @@ class AnswerPost:
             }
         else:
             self.data = None
-
-
 
     def make_data(self):
         self._answer_post()
