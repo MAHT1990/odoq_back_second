@@ -60,8 +60,8 @@ class SendSMS:
     def print_test_message(self):
         self._get_question()
         self._get_test_message()
-        print('question_data', self.question_data)
-        print('test message', self.test)
+        # print('question_data', self.question_data)
+        # print('test message', self.test)
 
 
 def start_scheduler():
@@ -78,5 +78,5 @@ def start_scheduler():
                       id='send_author_sms',
                       misfire_grace_time=None,
                       replace_existing=True)
-    scheduler.add_job(SendSMS().print_test_message, 'interval', seconds=10, id='test_message')
+    # scheduler.add_job(SendSMS().print_test_message, 'interval', seconds=10, id='test_message')
     scheduler.start()
