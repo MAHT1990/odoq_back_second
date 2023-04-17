@@ -5,75 +5,66 @@ from utils.common import get_author_phone_numbers
 
 class GetQuestion:
     def __init__(self, request):
-        self.request = request
+        self.data = None
+        self._request = request
+        self._qs_qstn = OdoqModels.Question.objects.all()
+        self._question = None
+        self._scnd_remain = None
 
-    def _get_question(self):
-        '''
+    def __get_remain_scnd_and_q(self, question):
+        now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
+        return abs((question.upload_datetime - now_utc).total_seconds()), question
+
+    def __get_question(self):
+        """
         현재 공개할 문제와, 다음 문제에의 남은시간
-        '''
+        :return: dict
+        """
         now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
-        now_weekday_kor = now_kor.weekday()
         now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
 
-        queryset_question = OdoqModels.Question.objects.all()
         # TODO: 없으면 None으로 잡히고, None의 attribute 접근에 대하여 AttributeError
-        if len(queryset_question) > 0:
+
+        if len(self._qs_qstn) > 0:
             try:
                 list_question_current_and_next = [
-                    min(
-                        list(
-                            map(
-                                lambda q: (abs(round((now_utc - q.upload_datetime).total_seconds())), q),
-                                qs
-                            )
-                        ),
-                        key=lambda x: x[0]
-                    ) for qs in [
-                        queryset_question.filter(
-                            upload_datetime__lte=now_utc
-                        ),
-                        queryset_question.filter(
-                            upload_datetime__gte=now_utc
-                        )
-                    ]
+                    min(list(map(self.__get_remain_scnd_and_q, qs)), key=lambda x: x[0])
+                    for qs in [
+                            self._qs_qstn.filter(upload_datetime__lte=now_utc),
+                            self._qs_qstn.filter(upload_datetime__gte=now_utc)
+                        ]
                 ]
+                print(list_question_current_and_next)
 
-                self.question = list_question_current_and_next[0][1]
-                self.second_remain = list_question_current_and_next[1][0]
+                self._question = list_question_current_and_next[0][1]
+                self._scnd_remain = list_question_current_and_next[1][0]
             except ValueError as e:
                 # print(e)
-                self.question = min(
-                    list(
-                        map(
-                            lambda q: (abs(round((now_utc - q.upload_datetime).total_seconds())), q),
-                            queryset_question.filter(
+                self._question = min(list(map(self.__get_remain_scnd_and_q,
+                            self._qs_qstn.filter(
                                 upload_datetime__lte=now_utc
-                            )
-                        )
-                    ), key=lambda x: x[0]
-                )[1]
-                self.second_remain = None
+                            ))), key=lambda x: x[0])[1]
+                self._scnd_remain = None
         else:
-            self.question, self.second_remain = None, None
-
-        return self.question
+            self._question, self._scnd_remain = None, None
 
     def make_data(self):
-        self._get_question()
+        self.__get_question()
         try:
             self.data = {
-                'id': self.question.id,
-                'code': self.question.code,
-                'season': self.question.season,
-                'img_url': self.question.img.url,
-                'answer': self.question.answer,
-                'answer_count': self.question.answer_count,
-                'solve_count': self.question.solve_count,
-                'second_remain': self.second_remain,
+                'id': self._question.id,
+                'code': self._question.code,
+                'season': self._question.season,
+                'img_url': self._question.img.url,
+                'answer': self._question.answer,
+                'answer_count': self._question.answer_count,
+                'solve_count': self._question.solve_count,
+                'second_remain': self._scnd_remain,
             }
+            print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            # print(e)
-            self.data = None
+            print(e)
+            pass
         # print(self.data)
         # print('api/question/services.py > GetQuestion > self.data', self.data)
         return self.data
@@ -81,7 +72,7 @@ class GetQuestion:
 
 class GetAnswerHistory:
     def __init__(self, request):
-        self.request = request
+        self._request = request
         if (request.GET.get('userId', None) != '0'):
             self.user_id = request.GET.get('userId', None)
         else:
@@ -120,7 +111,7 @@ class GetAnswerHistory:
 
 class GetAnswerLive:
     def __init__(self, request):
-        self.request = request
+        self._request = request
         if request.GET.get('questionId', None) != '0':
             self.question_id = request.GET.get('questionId', None)
         else:
@@ -156,7 +147,7 @@ class GetAnswerLive:
 
 class AnswerPost:
     def __init__(self, request):
-        self.request = request
+        self._request = request
         self.question_id = request.data.get('questionId', None)
         self.user_id = request.data.get('userId', None)
         self.answer = request.data.get('answer', None)
