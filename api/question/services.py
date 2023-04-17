@@ -34,7 +34,6 @@ class GetQuestion:
                             self._qs_qstn.filter(upload_datetime__gte=now_utc)
                         ]
                 ]
-                print(list_question_current_and_next)
 
                 self._question = list_question_current_and_next[0][1]
                 self._scnd_remain = list_question_current_and_next[1][0]
@@ -61,9 +60,7 @@ class GetQuestion:
                 'solve_count': self._question.solve_count,
                 'second_remain': self._scnd_remain,
             }
-            print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            print(e)
             pass
         # print(self.data)
         # print('api/question/services.py > GetQuestion > self.data', self.data)
