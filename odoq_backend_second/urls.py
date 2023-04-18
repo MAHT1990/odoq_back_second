@@ -18,9 +18,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path
 import api
+import testapp
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/test/', testapp.views.index),
 ]
 
 urlpatterns_csrf = [

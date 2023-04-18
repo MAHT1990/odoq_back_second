@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'odoq_models',
     'odoq_scheduler',
+    'testapp',
 ]
 
 MIDDLEWARE = [
@@ -93,7 +94,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'odoq_backend_second.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
