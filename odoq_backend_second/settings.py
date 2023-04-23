@@ -134,7 +134,7 @@ DATABASES = {
         'HOST': 'awslearner.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
-            'init_command': "SET sql_model='STRICT_TRANS_TABLES'",
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         }
     }
 }
