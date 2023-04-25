@@ -92,17 +92,22 @@ class GetAnswerHistory:
 
     def _get_can_answer_remain_time(self):
         if self.user_id is not None and self.question_id is not None:
-            user = OdoqModels.User.objects.get(id=self.user_id)
-            question = OdoqModels.Question.objects.get(id=self.question_id)
-            question_answer_history = OdoqModels.AnswerHistory.objects.filter(
-                user=user,
-                question=question,
-            ).order_by('-created_at')
-            can_answer_remain_time = \
-                (30 * len(question_answer_history) - 15) - (
-                        datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
-                ).total_seconds() if len(question_answer_history) > 0 else 0
-            self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+            try:
+                user = OdoqModels.User.objects.get(id=self.user_id)
+                question = OdoqModels.Question.objects.get(id=self.question_id)
+                question_answer_history = OdoqModels.AnswerHistory.objects.filter(
+                    user=user,
+                    question=question,
+                ).order_by('-created_at')
+                can_answer_remain_time = \
+                    (30 * len(question_answer_history) - 15) - (
+                            datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
+                    ).total_seconds() if len(question_answer_history) > 0 else 0
+                self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+            except OdoqModels.User.DoesNotExist as e:
+                # print(e)
+                self.can_answer_remain_time = 0
+                self.user_not_exist = True
         else:
             self.can_answer_remain_time = 0
         # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
@@ -110,6 +115,7 @@ class GetAnswerHistory:
     def make_data(self):
         self._get_can_answer_remain_time()
         self.data = {
+            'user_not_exist': self.user_not_exist if hasattr(self, 'user_not_exist') else False,
             'can_answer_remain_time': self.can_answer_remain_time,
         }
         # print(self.data)
