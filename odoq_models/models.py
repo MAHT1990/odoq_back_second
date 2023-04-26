@@ -162,6 +162,7 @@ class Post(models.Model):
     # Question과 Comment는 1 : n 의 관계이다.
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     img = models.ImageField(null=True)
+    title = models.CharField(max_length=255, default='제목 이전 포스트들입니다.')
     content = models.TextField()
     like_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
