@@ -1,12 +1,26 @@
 from .base import *
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'awslearner',
+#         'USER': 'awslearner',
+#         'PASSWORD': 'v3nop101slk#',
+#         'HOST': 'awslearner.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#         }
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'awslearner',
-        'USER': 'awslearner',
+        'NAME': 'odoqtestrds',
+        'USER': 'odoqtestrds',
         'PASSWORD': 'v3nop101slk#',
-        'HOST': 'awslearner.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
+        'HOST': 'odoqtestrds.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",

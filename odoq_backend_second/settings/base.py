@@ -110,7 +110,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'odoq_backend_second.wsgi.application'
+WSGI_APPLICATION = 'odoq_backend_second.wsgi_development.application'
 
 
 # Database
