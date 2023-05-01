@@ -27,3 +27,5 @@ DATABASES = {
         }
     }
 }
+
+WSGI_APPLICATION = 'odoq_backend_second.wsgi_deploy.application'
