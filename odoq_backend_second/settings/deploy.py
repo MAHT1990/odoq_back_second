@@ -17,10 +17,10 @@ from .base import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odoqtestrds',
-        'USER': 'odoqtestrds',
+        'NAME': 'odoqtestrds2',
+        'USER': 'odoqtestrds2',
         'PASSWORD': 'v3nop101slk#',
-        'HOST': 'odoqtestrds.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
+        'HOST': 'odoqtestrds2.clbg2pjhuyja.ap-northeast-2.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
