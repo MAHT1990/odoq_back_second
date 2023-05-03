@@ -48,6 +48,7 @@ urlpatterns_question = [
 
 urlpatterns_post = [
     path('api/post/', api.post.views.PostView.as_view()),
+    path('api/post/<int:post_id>/', api.post.views.PostDetailView.as_view()),
 ]
 
 urlpatterns_sms = [

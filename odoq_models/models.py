@@ -174,7 +174,7 @@ class Post(models.Model):
     img = models.ImageField(null=True)
     title = models.CharField(max_length=255, default='제목 만들어지기전 포스트들입니다.')
     content = models.TextField()
-    read_count = models.PositiveIntegerField(default=0)
+    hit_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

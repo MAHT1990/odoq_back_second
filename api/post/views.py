@@ -3,10 +3,11 @@ from common._RES import makeResponse
 from . import services, serializers
 from middleware.CSRF import csrf_decorator
 
+
 class PostView(APIView):
     def get(self, request):
-        # print('getPost get called')
-        result = services.GetPost(request).make_data()
+        # print('GetPosts get called')
+        result = services.GetPosts(request).make_data()
         response = makeResponse(
             'success',
             '',
@@ -21,7 +22,7 @@ class PostView(APIView):
         post_before_validated = serializers.PostSerializer(data=request.data)
         if post_before_validated.is_valid():
             post_before_validated.save()
-            result = services.GetPost(request).make_data()
+            result = services.GetPosts(request).make_data()
 
         # print('result is ', result);
 
@@ -66,6 +67,19 @@ class PostView(APIView):
         response = makeResponse(
             'success',
             result_message,
+            result,
+        )
+        return response
+
+
+class PostDetailView(APIView):
+    def get(self, request, post_id):
+        # print('getPostDetail get called')
+        # print('post_id is ', post_id)
+        result = services.GetPostDetail(request, post_id).make_data()
+        response = makeResponse(
+            'success',
+            'success to get post detail',
             result,
         )
         return response
