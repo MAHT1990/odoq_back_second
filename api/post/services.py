@@ -120,7 +120,7 @@ class GetPostDetail:
                 'blind_text': self.post.blind_text,
             }
         } if self.post else None
-        print(self.data)
+        # print(self.data)
         return self.data
 
 
