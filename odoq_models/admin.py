@@ -74,6 +74,17 @@ class PostAdmin(admin.ModelAdmin):
         'blind',
     ]
 
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'user',
+        'post',
+        'content',
+        'created_at',
+        'updated_at',
+    ]
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = [

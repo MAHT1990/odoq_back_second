@@ -60,6 +60,7 @@ class GetPosts:
                 'updated_at': post.updated_at,
                 'blind': post.blind,
                 'blind_text': post.blind_text,
+                'comments_count': post.comments.count(),
             })
         self.posts = list_temp_posts
 
@@ -189,4 +190,51 @@ class BlindPost:
 
     def make_data(self):
         self._blind_post()
+        return self.data
+
+
+class GetComments:
+    def __init__(self, request, post_id):
+        self.post_id = post_id
+        self.data = {}
+        self.page_size = 100
+        self.page_number = request.GET.get('page', 1)
+
+    def _get_list_comments(self):
+        list_temp_comments = []
+        for comment in OdoqModels.Comment.objects.filter(post_id=self.post_id):
+            list_temp_comments.append({
+                'id': comment.id,
+                'user_id': comment.user.id,
+                'user_grade': comment.user.grade,
+                'user_level': comment.user.solved_questions.count(),
+                'user_name': comment.user.name,
+                'content': comment.content,
+                'created_at': comment.created_at,
+                'updated_at': comment.updated_at,
+                'blind': comment.blind,
+                'blind_text': comment.blind_text,
+                'cocomments': [],
+            })
+        self.comments = list_temp_comments
+
+    def make_data(self):
+        self._get_list_comments()
+        try:
+            pagination = Paginator(self.comments, self.page_size)
+            list_result_comments = pagination.page(self.page_number).object_list
+            self.data['comments'] = list_result_comments
+            self.data['current_page'] = pagination.page(self.page_number).number
+            self.data['total_pages'] = pagination.num_pages
+            self.data['total_comments'] = pagination.count
+            self.data['today_comments'] = len(list(filter(
+                lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.comments
+                )
+            ))
+        except Exception as e:
+            self.data['comments'] = []
+            self.data['current_page'] = 1
+            self.data['total_pages'] = 1
+            self.data['total_comments'] = 0
+            self.data['today_comments'] = 0
         return self.data

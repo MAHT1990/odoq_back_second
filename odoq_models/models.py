@@ -171,11 +171,43 @@ class AnswerHistory(models.Model):
 class Post(models.Model):
     # Question과 Comment는 1 : n 의 관계이다.
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    img = models.ImageField(null=True)
     title = models.CharField(max_length=255, default='제목 만들어지기전 포스트들입니다.')
     content = models.TextField()
+    img = models.ImageField(null=True)
     hit_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    blind = models.BooleanField(default=False)
+    blind_text = models.CharField(
+        max_length=100,
+        default="작성자에 의하여 블라인드 처리되었습니다.",
+        )
+
+    class Meta:
+        ordering = ['-created_at']
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    img = models.ImageField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    blind = models.BooleanField(default=False)
+    blind_text = models.CharField(
+        max_length=100,
+        default="작성자에 의하여 블라인드 처리되었습니다.",
+        )
+
+    class Meta:
+        ordering = ['created_at']
+
+
+class Cocomment(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     blind = models.BooleanField(default=False)
