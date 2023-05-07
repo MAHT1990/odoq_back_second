@@ -109,7 +109,7 @@ class CommentView(APIView):
 
         result = services.GetComments(request, post_id).make_data()
 
-        print('result is ', result);
+        # print('result is ', result);
 
         response = makeResponse(
             'success',
