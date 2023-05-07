@@ -205,7 +205,7 @@ class Comment(models.Model):
 
 
 class Cocomment(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='cocomments')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -217,7 +217,7 @@ class Cocomment(models.Model):
         )
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Solution(Post):

@@ -97,12 +97,17 @@ class CommentView(APIView):
         return response
     @csrf_decorator
     def post(self, request, post_id):
-        # print('createComment get called')
-        # print('request.data is ', request.data)
+        # 대댓글 분기.
+        if request.data.get('flag'):
+            cocoment_before_validated = serializers.CocommentSerializer(data=request.data)
+            if cocoment_before_validated.is_valid():
+                cocoment_before_validated.save()
+
         comment_before_validated = serializers.CommentSerializer(data=request.data)
         if comment_before_validated.is_valid():
             comment_before_validated.save()
-            result = services.GetComments(request, post_id).make_data()
+
+        result = services.GetComments(request, post_id).make_data()
 
         print('result is ', result);
 

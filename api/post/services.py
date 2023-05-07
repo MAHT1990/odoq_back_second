@@ -214,7 +214,19 @@ class GetComments:
                 'updated_at': comment.updated_at,
                 'blind': comment.blind,
                 'blind_text': comment.blind_text,
-                'cocomments': [],
+                'cocomments': [{
+                    'id': cocomment.id,
+                    'user_id': cocomment.user.id,
+                    'user_grade': cocomment.user.grade,
+                    'user_level': cocomment.user.solved_questions.count(),
+                    'user_name': cocomment.user.name,
+                    'content': cocomment.content,
+                    'created_at': cocomment.created_at,
+                    'updated_at': cocomment.updated_at,
+                    'blind': cocomment.blind,
+                    'blind_text': cocomment.blind_text,
+                    } for cocomment in comment.cocomments.all()
+                ],
             })
         self.comments = list_temp_comments
 
@@ -227,10 +239,7 @@ class GetComments:
             self.data['current_page'] = pagination.page(self.page_number).number
             self.data['total_pages'] = pagination.num_pages
             self.data['total_comments'] = pagination.count
-            self.data['today_comments'] = len(list(filter(
-                lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.comments
-                )
-            ))
+
         except Exception as e:
             self.data['comments'] = []
             self.data['current_page'] = 1
