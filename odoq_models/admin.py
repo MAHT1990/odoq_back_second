@@ -67,6 +67,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'user',
+        'title',
         'content',
         'like_count',
         'created_at',

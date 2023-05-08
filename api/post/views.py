@@ -78,9 +78,9 @@ class PostDetailView(APIView):
         # print('post_id is ', post_id)
         result = services.GetPostDetail(request, post_id).make_data()
         response = makeResponse(
-            'success',
-            'success to get post detail',
-            result,
+            'success' if result['success'] else 'error',
+            '',
+            result['data'],
         )
         return response
 

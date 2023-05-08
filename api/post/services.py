@@ -51,13 +51,13 @@ class GetPosts:
                 'user_level': post.user.solved_questions.count(),
                 'user_name': post.user.name,
                 'title': post.title,
-                'content': post.content,
-                'img_url': post.img.url if post.img else None,
+                # 'content': post.content,
+                # 'img_url': post.img.url if post.img else None,
                 'hit_count': post.hit_count,
                 'like_count': post.like_count,
                 'liked_users': [user.id for user in post.liked_users.all()],
                 'created_at': post.created_at,
-                'updated_at': post.updated_at,
+                # 'updated_at': post.updated_at,
                 'blind': post.blind,
                 'blind_text': post.blind_text,
                 'comments_count': post.comments.count(),
@@ -93,7 +93,11 @@ class GetPostDetail:
 
     def _get_post(self):
         if self.post_id is not None:
-            self.post = OdoqModels.Post.objects.get(id=self.post_id)
+            try:
+                self.post = OdoqModels.Post.objects.get(id=self.post_id)
+            except OdoqModels.Post.DoesNotExist:
+                self.post = None
+        if self.post is not None:
             self.__hit_count()
 
     def __hit_count(self):
@@ -122,7 +126,10 @@ class GetPostDetail:
             }
         } if self.post else None
         # print(self.data)
-        return self.data
+        return {
+            'success': True if self.data else False,
+            'data': self.data,
+        }
 
 
 class LikePost:
