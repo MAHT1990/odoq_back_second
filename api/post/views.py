@@ -98,7 +98,7 @@ class CommentView(APIView):
     @csrf_decorator
     def post(self, request, post_id):
         # 대댓글 분기.
-        if request.data.get('flag'):
+        if request.data.get('cocomment'):
             cocoment_before_validated = serializers.CocommentSerializer(data=request.data)
             if cocoment_before_validated.is_valid():
                 cocoment_before_validated.save()
@@ -119,7 +119,7 @@ class CommentView(APIView):
         return response
 
     @csrf_decorator
-    def patch(self, request):
+    def patch(self, request, post_id):
         '''
         좋아요 및 댓글의 수정을 담당하는 함수
         '''

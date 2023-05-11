@@ -254,3 +254,32 @@ class GetComments:
             self.data['total_comments'] = 0
             self.data['today_comments'] = 0
         return self.data
+
+
+class BlindComment:
+    def __init__(self, request):
+        self.comment_id = request.data.get('commentId', None)
+        self.user_grade = request.data.get('userGrade', None)
+
+    def _blind_comment(self):
+        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
+        if self.comment_id is not None:
+            comment = OdoqModels.Comment.objects.get(id=self.comment_id)
+            comment.blind = not comment.blind
+            comment.blind_text = '관리자에 의해 블라인드 처리되었습니다.' if self.user_grade == 2 else comment.blind_text
+            comment.save()
+            self.data = {
+                'success': True,
+                'blind': comment.blind,
+                'blind_text': comment.blind_text,
+                'comment_id': self.comment_id,
+            }
+            # print('post/services.py > BlindPost self.data is ', self.data)
+        else:
+            self.data = {
+                'success': False,
+            }
+
+    def make_data(self):
+        self._blind_comment()
+        return self.data
