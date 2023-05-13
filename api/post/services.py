@@ -28,6 +28,16 @@ class GetPosts:
         # print('self.user_id is ', self.user_id, type(self.user_id))
         self.data = {}
 
+    def _get_comments_count(self, post):
+        '''
+        댓글 개수를 가져오는 함수
+        '''
+        comments_count = OdoqModels.Comment.objects.filter(post_id=post.id).count()
+        cocomments_count = 0
+        for comment in post.comments.all():
+            cocomments_count += OdoqModels.Cocomment.objects.filter(comment_id=comment.id).count()
+        return comments_count + cocomments_count
+
     def _get_list_posts(self):
         '''
         게시글을 가져오는 함수
@@ -60,7 +70,7 @@ class GetPosts:
                 # 'updated_at': post.updated_at,
                 'blind': post.blind,
                 'blind_text': post.blind_text,
-                'comments_count': post.comments.count(),
+                'comments_count': self._get_comments_count(post),
             })
         self.posts = list_temp_posts
 
@@ -256,30 +266,73 @@ class GetComments:
         return self.data
 
 
-class BlindComment:
+class EditComment:
     def __init__(self, request):
-        self.comment_id = request.data.get('commentId', None)
-        self.user_grade = request.data.get('userGrade', None)
+        self.target_id = request.data.get('targetId', None)
+        self.content = request.data.get('content', None)
 
-    def _blind_comment(self):
-        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
-        if self.comment_id is not None:
-            comment = OdoqModels.Comment.objects.get(id=self.comment_id)
-            comment.blind = not comment.blind
-            comment.blind_text = '관리자에 의해 블라인드 처리되었습니다.' if self.user_grade == 2 else comment.blind_text
-            comment.save()
+    def _set_target_model(self):
+        self.target_model = OdoqModels.Comment
+
+    def _edit_target(self):
+        if self.target_id is not None:
+            target = self.target_model.objects.get(id=self.target_id)
+            target.content = self.content
+            target.save()
             self.data = {
                 'success': True,
-                'blind': comment.blind,
-                'blind_text': comment.blind_text,
-                'comment_id': self.comment_id,
+                'target_id': self.target_id,
+                'content': self.content,
             }
-            # print('post/services.py > BlindPost self.data is ', self.data)
         else:
             self.data = {
                 'success': False,
             }
 
     def make_data(self):
+        self._set_target_model()
+        self._edit_target()
+        return self.data
+
+
+class BlindComment:
+    def __init__(self, request):
+        self.target_id = request.data.get('targetId', None)
+        self.user_grade = request.data.get('userGrade', None)
+
+    def _set_target_model(self):
+        self.target_model = OdoqModels.Comment
+
+    def _blind_comment(self):
+        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
+        if self.target_id is not None:
+            target = self.target_model.objects.get(id=self.target_id)
+            target.blind = not target.blind
+            target.blind_text = '관리자에 의해 블라인드 처리되었습니다.' if self.user_grade == 2 else target.blind_text
+            target.save()
+            self.data = {
+                'success': True,
+                'blind': target.blind,
+                'blind_text': target.blind_text,
+                'target_id': self.target_id,
+            }
+            print('post/services.py > BlindPost self.data is ', self.data)
+        else:
+            self.data = {
+                'success': False,
+            }
+
+    def make_data(self):
+        self._set_target_model()
         self._blind_comment()
         return self.data
+
+
+class EditCocomment(EditComment):
+    def _set_target_model(self):
+        self.target_model = OdoqModels.Cocomment
+
+
+class BlindCocomment(BlindComment):
+    def _set_target_model(self):
+        self.target_model = OdoqModels.Cocomment

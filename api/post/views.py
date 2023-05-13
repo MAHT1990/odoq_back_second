@@ -99,13 +99,13 @@ class CommentView(APIView):
     def post(self, request, post_id):
         # 대댓글 분기.
         if request.data.get('cocomment'):
-            cocoment_before_validated = serializers.CocommentSerializer(data=request.data)
-            if cocoment_before_validated.is_valid():
-                cocoment_before_validated.save()
-
-        comment_before_validated = serializers.CommentSerializer(data=request.data)
-        if comment_before_validated.is_valid():
-            comment_before_validated.save()
+            cocomment_before_validated = serializers.CocommentSerializer(data=request.data)
+            if cocomment_before_validated.is_valid():
+                cocomment_before_validated.save()
+        else:
+            comment_before_validated = serializers.CommentSerializer(data=request.data)
+            if comment_before_validated.is_valid():
+                comment_before_validated.save()
 
         result = services.GetComments(request, post_id).make_data()
 
@@ -120,27 +120,40 @@ class CommentView(APIView):
 
     @csrf_decorator
     def patch(self, request, post_id):
-        '''
-        좋아요 및 댓글의 수정을 담당하는 함수
-        '''
+        """
+        좋아요 및 댓글의 수정 및 블라인드를 담당하는 함수
+        """
         # print('updateComment get called')
-        # print('request.data is ', request.data)
+        print('request.data is ', request.data)
 
         flag = request.data.get('flag', None)
+        comment_flag = request.data.get('commentFlag', None)
+        if comment_flag == 'cocomment':
+            handlers = {
+                'edit': services.EditCocomment(request),
+                'blind': services.BlindCocomment(request),
+            }
+        else:  # comment_flag == 'comment'
+            handlers = {
+                'edit': services.EditComment(request),
+                'blind': services.BlindComment(request),
+            }
+
+        result = handlers[flag].make_data()
+
         if flag == 'like':
-            result = services.LikeComment(request).make_data()
-            # print('result of like functionality is ', result)
             if result['success']:
                 result_message = '좋아요가 성공적으로 반영되었습니다.'
             else:
                 result_message = '좋아요 반영에 실패했습니다.'
 
-        elif flag == 'update':
-            pass
+        elif flag == 'edit':
+            if result['success']:
+                result_message = '댓글이 성공적으로 수정되었습니다.'
+            else:
+                result_message = '댓글 수정에 실패했습니다.'
 
         elif flag == 'blind':
-            result = services.BlindComment(request).make_data()
-            # print('result of blind functionality is ', result)
             if result['success']:
                 if result['blind']:
                     result_message = '댓글이 비공개 처리되었습니다.'
@@ -149,9 +162,8 @@ class CommentView(APIView):
             else:
                 result_message = '댓글 처리에 실패했습니다.'
 
-        response = makeResponse(
-            'success',
+        return makeResponse(
+            'success' if result['success'] else 'error',
             result_message,
             result,
         )
-        return response
