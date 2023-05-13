@@ -84,6 +84,22 @@ class PostDetailView(APIView):
         )
         return response
 
+    def delete(self, request, post_id):
+        print('deletePost get called')
+        result = services.DeletePost(request, post_id).make_data()
+        # print('result of delete functionality is ', result)
+        if result['success']:
+            result_message = '게시글이 성공적으로 삭제되었습니다.'
+        else:
+            result_message = '게시글 삭제에 실패했습니다.'
+
+        response = makeResponse(
+            'success' if result['success'] else 'error',
+            result_message,
+            result,
+        )
+        return response
+
 
 class CommentView(APIView):
     def get(self, request, post_id):

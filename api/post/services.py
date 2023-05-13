@@ -209,6 +209,26 @@ class BlindPost:
         self._blind_post()
         return self.data
 
+class DeletePost:
+    def __init__(self, request, post_id):
+        self.post_id = post_id
+
+    def _delete_post(self):
+        if self.post_id is not None:
+            post = OdoqModels.Post.objects.get(id=self.post_id)
+            post.delete()
+            self.data = {
+                'success': True,
+                'post_id': self.post_id,
+            }
+        else:
+            self.data = {
+                'success': False,
+            }
+
+    def make_data(self):
+        self._delete_post()
+        return self.data
 
 class GetComments:
     def __init__(self, request, post_id):
