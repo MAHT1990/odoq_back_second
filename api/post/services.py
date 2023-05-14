@@ -51,9 +51,14 @@ class GetPosts:
         if self.filtering_flag == 'my':
             queryset_post = queryset_post.filter(user_id=self.user_id)
 
+        if self.filtering_flag == 'solution':
+            queryset_post = queryset_post.filter(type__contains='solution')
+
         # ordering
         if self.ordering_flag == 'likeCount':
             queryset_post = queryset_post.order_by('-like_count', '-created_at')
+
+
         list_temp_posts = []
         for post in queryset_post:
             list_temp_posts.append({
