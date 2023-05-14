@@ -14,6 +14,7 @@ python manage.py migrate
 
 # 로컬 서버 열기
 python manage.py runserver
+python manage.py runserver --settings=odoq_backend_second.settings.deploy
 ```
 
 ## 초기 세팅 이후, 로컬 서버 열기

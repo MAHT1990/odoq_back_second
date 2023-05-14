@@ -8,10 +8,18 @@ class GetAcceptSMS:
     def make_data(self):
         # print('## api/user/accept_sms/services.py > GetAcceptSMS self.user_id is ', self.user_id, type(self.user_id))
         if self.user_id is not None and self.user_id != '0':
-            user = OdoqModels.User.objects.get(id=self.user_id)
-            data = {
-                'accept_sms': user.accept_sms,
-            }
+            try:
+                user = OdoqModels.User.objects.get(id=self.user_id)
+                data = {
+                    'accept_sms': user.accept_sms,
+                }
+            except Exception as e:
+                # print(e)
+                # print('User Does not Exist')
+                data = {
+                    'user_not_exist': True,
+                    'accept_sms': False,
+                }
         else:
             data = {
                 'accept_sms': False,

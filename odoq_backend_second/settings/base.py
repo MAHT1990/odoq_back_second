@@ -15,7 +15,7 @@ import os
 import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 with open(os.path.join(BASE_DIR, 'secrets.json'), 'rb') as secret_file:
     secrets = json.load(secret_file)
@@ -110,11 +110,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'odoq_backend_second.wsgi.application'
+WSGI_APPLICATION = 'odoq_backend_second.wsgi_development.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+import pymysql
+pymysql.install_as_MySQLdb()
 
 DATABASES = {
     'default': {
@@ -122,7 +124,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

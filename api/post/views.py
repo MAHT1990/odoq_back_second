@@ -3,10 +3,11 @@ from common._RES import makeResponse
 from . import services, serializers
 from middleware.CSRF import csrf_decorator
 
+
 class PostView(APIView):
     def get(self, request):
-        # print('getPost get called')
-        result = services.GetPost(request).make_data()
+        # print('GetPosts get called')
+        result = services.GetPosts(request).make_data()
         response = makeResponse(
             'success',
             '',
@@ -21,7 +22,7 @@ class PostView(APIView):
         post_before_validated = serializers.PostSerializer(data=request.data)
         if post_before_validated.is_valid():
             post_before_validated.save()
-            result = services.GetPost(request).make_data()
+            result = services.GetPosts(request).make_data()
 
         # print('result is ', result);
 
@@ -69,3 +70,116 @@ class PostView(APIView):
             result,
         )
         return response
+
+
+class PostDetailView(APIView):
+    def get(self, request, post_id):
+        # print('getPostDetail get called')
+        # print('post_id is ', post_id)
+        result = services.GetPostDetail(request, post_id).make_data()
+        response = makeResponse(
+            'success' if result['success'] else 'error',
+            '',
+            result['data'],
+        )
+        return response
+
+    def delete(self, request, post_id):
+        print('deletePost get called')
+        result = services.DeletePost(request, post_id).make_data()
+        # print('result of delete functionality is ', result)
+        if result['success']:
+            result_message = '게시글이 성공적으로 삭제되었습니다.'
+        else:
+            result_message = '게시글 삭제에 실패했습니다.'
+
+        response = makeResponse(
+            'success' if result['success'] else 'error',
+            result_message,
+            result,
+        )
+        return response
+
+
+class CommentView(APIView):
+    def get(self, request, post_id):
+        # print('GetPosts get called')
+        result = services.GetComments(request, post_id).make_data()
+        response = makeResponse(
+            'success',
+            '',
+            result,
+        )
+        return response
+    @csrf_decorator
+    def post(self, request, post_id):
+        # 대댓글 분기.
+        if request.data.get('cocomment'):
+            cocomment_before_validated = serializers.CocommentSerializer(data=request.data)
+            if cocomment_before_validated.is_valid():
+                cocomment_before_validated.save()
+        else:
+            comment_before_validated = serializers.CommentSerializer(data=request.data)
+            if comment_before_validated.is_valid():
+                comment_before_validated.save()
+
+        result = services.GetComments(request, post_id).make_data()
+
+        # print('result is ', result);
+
+        response = makeResponse(
+            'success',
+            '댓글이 성공적으로 등록되었습니다.',
+            result,
+        )
+        return response
+
+    @csrf_decorator
+    def patch(self, request, post_id):
+        """
+        좋아요 및 댓글의 수정 및 블라인드를 담당하는 함수
+        """
+        # print('updateComment get called')
+        print('request.data is ', request.data)
+
+        flag = request.data.get('flag', None)
+        comment_flag = request.data.get('commentFlag', None)
+        if comment_flag == 'cocomment':
+            handlers = {
+                'edit': services.EditCocomment(request),
+                'blind': services.BlindCocomment(request),
+            }
+        else:  # comment_flag == 'comment'
+            handlers = {
+                'edit': services.EditComment(request),
+                'blind': services.BlindComment(request),
+            }
+
+        result = handlers[flag].make_data()
+
+        if flag == 'like':
+            if result['success']:
+                result_message = '좋아요가 성공적으로 반영되었습니다.'
+            else:
+                result_message = '좋아요 반영에 실패했습니다.'
+
+        elif flag == 'edit':
+            if result['success']:
+                result_message = '댓글이 성공적으로 수정되었습니다.'
+            else:
+                result_message = '댓글 수정에 실패했습니다.'
+
+        elif flag == 'blind':
+            if result['success']:
+                if result['blind']:
+                    result_message = '댓글이 비공개 처리되었습니다.'
+                else:
+                    result_message = '댓글이 공개 처리되었습니다.'
+            else:
+                result_message = '댓글 처리에 실패했습니다.'
+
+        return makeResponse(
+            'success' if result['success'] else 'error',
+            result_message,
+            result,
+        )

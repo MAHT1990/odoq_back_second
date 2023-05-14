@@ -51,17 +51,20 @@ class GetQuestion:
         self.__get_question()
         try:
             self.data = {
-                'id': self._question.id,
-                'code': self._question.code,
-                'season': self._question.season,
-                'img_url': self._question.img.url,
-                'answer': self._question.answer,
-                'answer_count': self._question.answer_count,
-                'solve_count': self._question.solve_count,
-                'second_remain': self._scnd_remain,
+                'id': self.question.id,
+                'code': self.question.code,
+                'season': self.question.season,
+                'img_url': self.question.img.url,
+                'answer': self.question.answer,
+                'answer_count': self.question.answer_count,
+                'solve_count': self.question.solve_count,
+                'second_remain': self.second_remain,
+                'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
             }
+            print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            pass
+            print(e)
+            self.data = None
         # print(self.data)
         # print('api/question/services.py > GetQuestion > self.data', self.data)
         return self.data
@@ -82,17 +85,22 @@ class GetAnswerHistory:
 
     def _get_can_answer_remain_time(self):
         if self.user_id is not None and self.question_id is not None:
-            user = OdoqModels.User.objects.get(id=self.user_id)
-            question = OdoqModels.Question.objects.get(id=self.question_id)
-            question_answer_history = OdoqModels.AnswerHistory.objects.filter(
-                user=user,
-                question=question,
-            ).order_by('-created_at')
-            can_answer_remain_time = \
-                (30 * len(question_answer_history) - 15) - (
-                        datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
-                ).total_seconds() if len(question_answer_history) > 0 else 0
-            self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+            try:
+                user = OdoqModels.User.objects.get(id=self.user_id)
+                question = OdoqModels.Question.objects.get(id=self.question_id)
+                question_answer_history = OdoqModels.AnswerHistory.objects.filter(
+                    user=user,
+                    question=question,
+                ).order_by('-created_at')
+                can_answer_remain_time = \
+                    (30 * len(question_answer_history) - 15) - (
+                            datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
+                    ).total_seconds() if len(question_answer_history) > 0 else 0
+                self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+            except OdoqModels.User.DoesNotExist as e:
+                # print(e)
+                self.can_answer_remain_time = 0
+                self.user_not_exist = True
         else:
             self.can_answer_remain_time = 0
         # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
@@ -100,6 +108,7 @@ class GetAnswerHistory:
     def make_data(self):
         self._get_can_answer_remain_time()
         self.data = {
+            'user_not_exist': self.user_not_exist if hasattr(self, 'user_not_exist') else False,
             'can_answer_remain_time': self.can_answer_remain_time,
         }
         # print(self.data)
@@ -229,6 +238,7 @@ class AnswerPost:
                 'answer_count': question.answer_count,
                 'solve_count': question.solve_count,
                 'can_answer_remain_time': can_answer_remain_time,
+                'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
             }
         else:
             self.data = None

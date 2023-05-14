@@ -132,7 +132,5 @@ dmypy.json
 .pyre/
 
 # Django
-migrations
-migrations/
 media/
 secrets.json

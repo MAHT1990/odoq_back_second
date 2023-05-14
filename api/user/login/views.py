@@ -15,6 +15,13 @@ def index(request):
 
 
 class LoginUserModel(APIView):
+  def get(self, request):
+    try:
+        OdoqModels.User.objects.get(id=request.GET.get('userId'))
+    except OdoqModels.User.DoesNotExist:
+        return makeResponse('error', '계정 미존재')
+    else:
+        return makeResponse('success', '해당 계정 존재')
   @csrf_decorator
   def post(self, request):
     email = request.data['email']
