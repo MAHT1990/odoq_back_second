@@ -51,18 +51,19 @@ class GetQuestion:
         self.__get_question()
         try:
             self.data = {
-                'id': self.question.id,
-                'code': self.question.code,
-                'season': self.question.season,
-                'img_url': self.question.img.url,
-                'answer': self.question.answer,
-                'answer_count': self.question.answer_count,
-                'solve_count': self.question.solve_count,
-                'second_remain': self.second_remain,
-                'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
+                'id': self._question.id,
+                'code': self._question.code,
+                'season': self._question.season,
+                'img_url': self._question.img.url,
+                'answer': self._question.answer,
+                'answer_count': self._question.answer_count,
+                'solve_count': self._question.solve_count,
+                'second_remain': self._scnd_remain,
+                'solved_users': [user_id for user_id in self._question.solved_users.all().values_list('id', flat=True)],
             }
             print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
+            print('에러가 나나요요오오옹??')
             print(e)
             self.data = None
         # print(self.data)

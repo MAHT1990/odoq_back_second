@@ -95,7 +95,7 @@ class GetPosts:
                 lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
                 )
             ))
-            print(self.data)
+            # print(self.data)
         except Exception as e:
             list_result_posts = pagination.page(1).object_list
             self.data['posts'] = list_result_posts
@@ -107,7 +107,7 @@ class GetPosts:
                 )
             ))
             # TODO: 아마도 today_posts에서 예외처리가 필요할 수도.
-        print(self.data)
+        # print(self.data)
         return self.data
 
 
