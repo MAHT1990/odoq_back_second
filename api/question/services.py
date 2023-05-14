@@ -69,9 +69,11 @@ class GetQuestion:
                 'answer_count': self.question.answer_count,
                 'solve_count': self.question.solve_count,
                 'second_remain': self.second_remain,
+                'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
             }
+            print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            # print(e)
+            print(e)
             self.data = None
         # print(self.data)
         # print('api/question/services.py > GetQuestion > self.data', self.data)
@@ -208,6 +210,7 @@ class AnswerPost:
                 'answer_count': question.answer_count,
                 'solve_count': question.solve_count,
                 'can_answer_remain_time': can_answer_remain_time,
+                'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
             }
         else:
             self.data = None
