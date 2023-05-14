@@ -61,10 +61,10 @@ class GetQuestion:
                 'second_remain': self._scnd_remain,
                 'solved_users': [user_id for user_id in self._question.solved_users.all().values_list('id', flat=True)],
             }
-            print('api/question/services.py > GetQuestion > self.data', self.data)
+            # print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            print('에러가 나나요요오오옹??')
-            print(e)
+            # print('에러가 나나요요오오옹??')
+            # print(e)
             self.data = None
         # print(self.data)
         # print('api/question/services.py > GetQuestion > self.data', self.data)
