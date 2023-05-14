@@ -1,7 +1,7 @@
 import odoq_models.models as OdoqModels
 import datetime
 from django.core.paginator import Paginator
-
+from django.db.models import Q
 
 class GetPosts:
     def __init__(self, request):
@@ -45,6 +45,8 @@ class GetPosts:
         '''
         # filtering
         queryset_post = OdoqModels.Post.objects.all()
+        # filtering type is 'normal' or type contains 'solution'
+        queryset_post = queryset_post.filter(Q(type='normal') | Q(type__contains='solution'))
 
         if self.filtering_flag == 'my':
             queryset_post = queryset_post.filter(user_id=self.user_id)
@@ -56,13 +58,14 @@ class GetPosts:
         for post in queryset_post:
             list_temp_posts.append({
                 'id': post.id,
+                'type': post.type,
                 'user_id': post.user.id,
                 'user_grade': post.user.grade,
                 'user_level': post.user.solved_questions.count(),
                 'user_name': post.user.name,
                 'title': post.title,
                 # 'content': post.content,
-                # 'img_url': post.img.url if post.img else None,
+                'img_url': post.img.url if post.img else None,
                 'hit_count': post.hit_count,
                 'like_count': post.like_count,
                 'liked_users': [user.id for user in post.liked_users.all()],
@@ -76,8 +79,8 @@ class GetPosts:
 
     def make_data(self):
         self._get_list_posts()
+        pagination = Paginator(self.posts, self.page_size)
         try:
-            pagination = Paginator(self.posts, self.page_size)
             list_result_posts = pagination.page(self.page_number).object_list
             self.data['posts'] = list_result_posts
             self.data['current_page'] = pagination.page(self.page_number).number
@@ -87,12 +90,19 @@ class GetPosts:
                 lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
                 )
             ))
-
-        except :
+            print(self.data)
+        except Exception as e:
+            list_result_posts = pagination.page(1).object_list
+            self.data['posts'] = list_result_posts
+            self.data['current_page'] = pagination.page(1).number
+            self.data['total_pages'] = pagination.num_pages
+            self.data['total_posts'] = pagination.count
+            self.data['today_posts'] = len(list(filter(
+                lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
+                )
+            ))
             # TODO: 아마도 today_posts에서 예외처리가 필요할 수도.
-            # print('EmptyPage')
-            pass
-        # print(self.data)
+        print(self.data)
         return self.data
 
 

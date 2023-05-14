@@ -123,7 +123,7 @@ class SmsHistory(models.Model):
 
 
 class Notice(models.Model):
-    season = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     img = models.ImageField(null=True)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -170,6 +170,7 @@ class AnswerHistory(models.Model):
 
 class Post(models.Model):
     # Question과 Comment는 1 : n 의 관계이다.
+    type = models.CharField(max_length=255, default='normal')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255, default='제목 만들어지기전 포스트들입니다.')
     content = models.TextField()

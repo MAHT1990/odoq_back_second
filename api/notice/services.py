@@ -5,15 +5,20 @@ class GetNotice:
         self.request = request
 
     def make_data(self):
-        notice = OdoqModels.Notice.objects.all().first()
+        notices = OdoqModels.Notice.objects.all()
         # print('api/notice/services.py > GetNotice is ', notice)
         # print(notice.season)
         # print(notice.img, type(notice.img))
         # print(notice.text)
 
         data = {
-            'season': notice.season,
-            'img_url': notice.img.url,
-            'text': notice.text,
-        } if notice is not None else {}
+            'notices': [{
+                'id': notice.id,
+                'title': notice.title,
+                'img_url': notice.img.url,
+                'text': notice.text,
+                'created_at': notice.created_at,
+                'updated_at': notice.updated_at,
+            } for notice in notices if notice is not None]
+        }
         return data

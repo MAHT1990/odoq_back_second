@@ -16,7 +16,7 @@ class SmsHistoryAdmin(admin.ModelAdmin):
 class NoticeAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'season',
+        'title',
         'img',
         'text',
         'created_at',
@@ -66,7 +66,8 @@ class AnswerHistoryAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'user',
+        'type',
+        'user_name',
         'title',
         'content',
         'like_count',
@@ -75,16 +76,22 @@ class PostAdmin(admin.ModelAdmin):
         'blind',
     ]
 
+    def user_name(self, post):
+        return post.user.name
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'user',
+        'user_name',
         'post',
         'content',
         'created_at',
         'updated_at',
     ]
+
+    def user_name(self, comment):
+        return comment.user.name
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
