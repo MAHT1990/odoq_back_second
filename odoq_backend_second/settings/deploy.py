@@ -4,7 +4,7 @@ from .base import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odoq-rds',
+        'NAME': 'odoq',
         'USER': 'odoq_admin',
         'PASSWORD': 'v3nop101slk#',
         'HOST': 'odoq-rds.cihq6njmtbfz.ap-northeast-2.rds.amazonaws.com',
