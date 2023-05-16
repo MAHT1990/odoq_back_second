@@ -1,5 +1,6 @@
 import odoq_models.models as OdoqModels
 import datetime
+from math import ceil
 from django.core.paginator import Paginator
 from django.db.models import Q
 
@@ -7,8 +8,8 @@ class GetPosts:
     def __init__(self, request):
         # print('request.GET in post.services is ', request.GET)
         self.request = request
-        self.page_number = request.GET.get('pageNumber', 1)
-        self.page_size = request.GET.get('pageSize', 7)
+        self.page_number = int(request.GET.get('pageNumber', 1))
+        self.page_size = int(request.GET.get('pageSize', 7))
         self.filtering_flag = request.GET.get(
             'filteringFlag',
             request.data.get('filteringFlag', 'all')
@@ -44,9 +45,11 @@ class GetPosts:
         filtering_flag에 따라서 '전체' 또는 '나의' 게시글을 가져온다.
         '''
         # filtering
-        queryset_post = OdoqModels.Post.objects.all()
+        limit, offset = self.page_size * self.page_number, self.page_size * (self.page_number - 1)
         # filtering type is 'normal' or type contains 'solution'
-        queryset_post = queryset_post.filter(Q(type='normal') | Q(type__contains='solution'))
+        queryset_post = OdoqModels.Post.objects.filter(
+            Q(type='normal') | Q(type__contains='solution')
+        )[offset:limit]
 
         if self.filtering_flag == 'my':
             queryset_post = queryset_post.filter(user_id=self.user_id)
@@ -81,27 +84,26 @@ class GetPosts:
                 'comments_count': self._get_comments_count(post),
             })
         self.posts = list_temp_posts
+        self.total_posts = OdoqModels.Post.objects.count()
+        self.total_pages = ceil(self.total_posts / self.page_size)
 
     def make_data(self):
         self._get_list_posts()
-        pagination = Paginator(self.posts, self.page_size)
         try:
-            list_result_posts = pagination.page(self.page_number).object_list
-            self.data['posts'] = list_result_posts
-            self.data['current_page'] = pagination.page(self.page_number).number
-            self.data['total_pages'] = pagination.num_pages
-            self.data['total_posts'] = pagination.count
+            self.data['posts'] = self.posts
+            self.data['current_page'] = self.page_number
+            self.data['total_pages'] = self.total_pages
+            self.data['total_posts'] = self.total_posts
             self.data['today_posts'] = len(list(filter(
                 lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
                 )
             ))
             # print(self.data)
         except Exception as e:
-            list_result_posts = pagination.page(1).object_list
-            self.data['posts'] = list_result_posts
-            self.data['current_page'] = pagination.page(1).number
-            self.data['total_pages'] = pagination.num_pages
-            self.data['total_posts'] = pagination.count
+            self.data['posts'] = self.posts
+            self.data['current_page'] = 1
+            self.data['total_pages'] = 1
+            self.data['total_posts'] = self.total_posts
             self.data['today_posts'] = len(list(filter(
                 lambda x: (x['created_at'] + datetime.timedelta(hours=9)).date() == datetime.date.today(), self.posts
                 )
