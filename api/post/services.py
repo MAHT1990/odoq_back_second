@@ -10,6 +10,8 @@ class GetPosts:
         self.request = request
         self.page_number = int(request.GET.get('pageNumber', 1))
         self.page_size = int(request.GET.get('pageSize', 7))
+
+        # get으로 넘어올 수도 있고, post로 넘어올 수도 있다.
         self.filtering_flag = request.GET.get(
             'filteringFlag',
             request.data.get('filteringFlag', 'all')
@@ -44,22 +46,31 @@ class GetPosts:
         게시글을 가져오는 함수
         filtering_flag에 따라서 '전체' 또는 '나의' 게시글을 가져온다.
         '''
+        post_model = OdoqModels.Post
+
         # filtering
         limit, offset = self.page_size * self.page_number, self.page_size * (self.page_number - 1)
-        # filtering type is 'normal' or type contains 'solution'
-        queryset_post = OdoqModels.Post.objects.filter(
-            Q(type='normal') | Q(type__contains='solution')
-        )[offset:limit]
 
-        if self.filtering_flag == 'my':
-            queryset_post = queryset_post.filter(user_id=self.user_id)
+        if self.filtering_flag == 'all':
+            queryset_post = post_model.objects.filter(
+                Q(type='normal') | Q(type__contains='solution')
+            )[offset:limit]
+            self.total_posts = post_model.objects.filter(
+                Q(type='normal') | Q(type__contains='solution')
+            ).count()
 
         if self.filtering_flag == 'solution':
-            queryset_post = queryset_post.filter(type__contains='solution')
+            queryset_post = post_model.objects.filter(Q(type__contains='solution'))[offset:limit]
+            self.total_posts = post_model.objects.filter(Q(type__contains='solution')).count()
+
+        if self.filtering_flag == 'my':
+            queryset_post = post_model.objects.filter(user_id=self.user_id)[offset:limit]
+            self.total_posts = post_model.objects.filter(user_id=self.user_id).count()
 
         # ordering
         if self.ordering_flag == 'likeCount':
             queryset_post = queryset_post.order_by('-like_count', '-created_at')
+            self.total_posts = queryset_post.count()
 
 
         list_temp_posts = []
@@ -84,7 +95,6 @@ class GetPosts:
                 'comments_count': self._get_comments_count(post),
             })
         self.posts = list_temp_posts
-        self.total_posts = OdoqModels.Post.objects.count()
         self.total_pages = ceil(self.total_posts / self.page_size)
 
     def make_data(self):
