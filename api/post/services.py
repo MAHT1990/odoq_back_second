@@ -7,6 +7,7 @@ from django.db.models import Q
 class GetPosts:
     def __init__(self, request):
         # print('request.GET in post.services is ', request.GET)
+        # print('request.data in post.services is ', request.data)
         self.request = request
         self.page_number = int(request.GET.get('pageNumber', 1))
         self.page_size = int(request.GET.get('pageSize', 7))
