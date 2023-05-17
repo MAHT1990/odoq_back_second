@@ -364,7 +364,7 @@ class BlindComment:
                 'blind_text': target.blind_text,
                 'target_id': self.target_id,
             }
-            print('post/services.py > BlindPost self.data is ', self.data)
+            # print('post/services.py > BlindPost self.data is ', self.data)
         else:
             self.data = {
                 'success': False,
