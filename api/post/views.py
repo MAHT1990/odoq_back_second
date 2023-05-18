@@ -85,7 +85,7 @@ class PostDetailView(APIView):
         return response
 
     def delete(self, request, post_id):
-        # print('deletePost get called')
+        print('deletePost get called')
         result = services.DeletePost(request, post_id).make_data()
         # print('result of delete functionality is ', result)
         if result['success']:
@@ -140,7 +140,7 @@ class CommentView(APIView):
         좋아요 및 댓글의 수정 및 블라인드를 담당하는 함수
         """
         # print('updateComment get called')
-        # print('request.data is ', request.data)
+        print('request.data is ', request.data)
 
         flag = request.data.get('flag', None)
         comment_flag = request.data.get('commentFlag', None)
