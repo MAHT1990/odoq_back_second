@@ -18,7 +18,7 @@ class NoticeAdmin(admin.ModelAdmin):
         'id',
         'title',
         'img',
-        'text',
+        'content',
         'created_at',
         'updated_at',
     ]
@@ -85,6 +85,7 @@ class CommentAdmin(admin.ModelAdmin):
         'id',
         'user_name',
         'post',
+        'notice',
         'content',
         'created_at',
         'updated_at',

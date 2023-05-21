@@ -10,6 +10,7 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     grade = models.IntegerField(default=0)
     phone = models.CharField(max_length=255)
+    like_notices = models.ManyToManyField('Notice', blank=True, default=None, related_name='liked_users')
     like_posts = models.ManyToManyField('Post', blank=True, default=None, related_name='liked_users')
     # liked_cocomments = models.ManyToManyField('Cocomment', blank=True, default=None)
     answered_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='answered_users')
@@ -123,14 +124,18 @@ class SmsHistory(models.Model):
 
 
 class Notice(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     img = models.ImageField(null=True)
-    text = models.TextField()
+    content = models.TextField()
+    hit_count = models.PositiveIntegerField(default=0)
+    like_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
+    is_display = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.text
+        return self.title
 
     class Meta:
         ordering = ["-created_at"]
@@ -185,11 +190,15 @@ class Post(models.Model):
         default="작성자에 의하여 블라인드 처리되었습니다.",
         )
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         ordering = ['-created_at']
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=True, default=None)
+    notice = models.ForeignKey(Notice, on_delete=models.CASCADE, related_name='comments', null=True, default=None)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     img = models.ImageField(null=True)

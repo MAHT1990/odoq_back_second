@@ -1,38 +1,24 @@
 from rest_framework.views import APIView
 from common._RES import makeResponse
-from . import services
+from . import services, serializers
 from middleware.CSRF import csrf_decorator
 
-
-class NoticeView(APIView):
-    def get(self, request):
-        # print('getnotice called')
-        result = services.GetNotices(request).make_data()
-        response = makeResponse(
-            'success',
-            'Notice is successfully fetched',
-            result,
-        )
-        return response
-
-
-class NoticeDetailView(APIView):
-    def get(self, request, notice_id):
-        # print('getPostDetail get called')
-        # print('post_id is ', post_id)
-        result = services.GetNoticeDetail(request, notice_id).make_data()
-        response = makeResponse(
-            'success' if result['success'] else 'error',
-            '',
-            result['data'],
-        )
-        return response
-
-
 class CommentView(APIView):
-    def get(self, request, post_id):
+    def __get_post_or_notice(self, request):
+        if request.path.find('post') != -1:
+            self.post_or_notice = 'post'
+        if request.path.find('notice') != -1:
+            self.post_or_notice = 'notice'
+
+
+    def get(self, request, id):
         # print('GetPosts get called')
-        result = services.GetComments(request, post_id).make_data()
+        # print('request.path', request.path)
+        self.__get_post_or_notice(request)
+        result = services.GetComments(
+            request,
+            self.post_or_notice,
+            id).make_data()
         response = makeResponse(
             'success',
             '',
@@ -40,7 +26,8 @@ class CommentView(APIView):
         )
         return response
     @csrf_decorator
-    def post(self, request, post_id):
+    def post(self, request, id):
+        self.__get_post_or_notice(request)
         # 대댓글 분기.
         if request.data.get('cocomment'):
             cocomment_before_validated = serializers.CocommentSerializer(data=request.data)
@@ -51,7 +38,11 @@ class CommentView(APIView):
             if comment_before_validated.is_valid():
                 comment_before_validated.save()
 
-        result = services.GetComments(request, post_id).make_data()
+        result = services.GetComments(
+            request,
+            self.post_or_notice,
+            id
+        ).make_data()
 
         # print('result is ', result);
 
@@ -63,7 +54,7 @@ class CommentView(APIView):
         return response
 
     @csrf_decorator
-    def patch(self, request, post_id):
+    def patch(self, request, id):
         """
         좋아요 및 댓글의 수정 및 블라인드를 담당하는 함수
         """

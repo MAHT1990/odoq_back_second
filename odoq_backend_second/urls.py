@@ -41,6 +41,8 @@ urlpatterns_user = [
 
 urlpatterns_notice = [
     path('api/notice/', api.notice.views.NoticeView.as_view()),
+    path('api/notice/<int:notice_id>/', api.notice.views.NoticeDetailView.as_view()),
+    path('api/notice/<int:id>/comment/', api.comment.views.CommentView.as_view()),
 ]
 
 urlpatterns_question = [
@@ -52,7 +54,7 @@ urlpatterns_question = [
 urlpatterns_post = [
     path('api/post/', api.post.views.PostView.as_view()),
     path('api/post/<int:post_id>/', api.post.views.PostDetailView.as_view()),
-    path('api/post/<int:post_id>/comment/', api.post.views.CommentView.as_view()),
+    path('api/post/<int:id>/comment/', api.comment.views.CommentView.as_view()),
 ]
 
 urlpatterns_sms = [
