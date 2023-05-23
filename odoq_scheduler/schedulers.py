@@ -35,7 +35,6 @@ class SendSMS:
         else:
             return {'success': False, 'message': '보낼 출제자가 존재하지 않습니다.'}
 
-
     def send_author_sms(self):
         # print('sendAuthorSMS called and current Question is ', self.question_data)
         self._get_question()
