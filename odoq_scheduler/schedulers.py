@@ -51,36 +51,27 @@ class SendSMS:
         content = f"(ODOQ) \n 새로운 문제가 업로드 되었습니다. https://odoq2.com/"
         return self._send_sms(content, 0)
 
-    def _get_test_message(self):
-        self.test = datetime.datetime.now()
-
-    def print_test_message(self):
-        self._get_question()
-        self._get_test_message()
-        # print('question_data', self.question_data)
-        # print('test message', self.test)
-
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
     send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute=30, second=10, jitter=3)
     send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute=25, second=10, jitter=3)
 
-    test_interval_trigger = IntervalTrigger(seconds=30)
+    # test_interval_trigger = IntervalTrigger(seconds=30)
 
-    scheduler.add_job(SendSMS().send_author_sms,
-                      trigger=test_interval_trigger,
-                      id='test_message',
-                      replace_existing=True)
-
-    # scheduler.add_job(SendSMS().send_student_sms,
-    #                   trigger=send_student_trigger,
-    #                   id='send_student_sms',
-    #                   replace_existing=True)
     # scheduler.add_job(SendSMS().send_author_sms,
-    #                   trigger=send_author_trigger,
-    #                   id='send_author_sms',
+    #                   trigger=test_interval_trigger,
+    #                   id='test_message',
     #                   replace_existing=True)
+
+    scheduler.add_job(SendSMS().send_student_sms,
+                      trigger=send_student_trigger,
+                      id='send_student_sms',
+                      replace_existing=True)
+    scheduler.add_job(SendSMS().send_author_sms,
+                      trigger=send_author_trigger,
+                      id='send_author_sms',
+                      replace_existing=True)
 
     # scheduler.add_job(SendSMS().print_test_message, 'interval', seconds=10, id='test_message')
     scheduler.start()
