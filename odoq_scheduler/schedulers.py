@@ -8,8 +8,6 @@ import datetime
 
 
 class SendSMS:
-    def __init__(self):
-        self.question_data = Question.services.GetQuestion({}).make_data()
     def _get_question(self):
         self.question_data = Question.services.GetQuestion({}).make_data()
 
@@ -29,19 +27,18 @@ class SendSMS:
         :param grade: 0: student, 1: author
         :return: dict
         """
-        if self.question_data:
-            self._get_phone_list(grade)
-            if self.target_phone_list:
-                for target_phone in self.target_phone_list:
-                    OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
-                return {'success': True, 'message': '메시지 발송을 성공하였습니다.'}
-            else:
-                return {'success': False, 'message': '보낼 출제자가 존재하지 않습니다.'}
+        self._get_phone_list(grade)
+        if self.target_phone_list:
+            for target_phone in self.target_phone_list:
+                OdoqModels.SmsHistory.send_message(send_to=target_phone, is_auth=False, content=content)
+            return {'success': True, 'message': '메시지 발송을 성공하였습니다.'}
         else:
-            return {'success': False, 'message': '문제가 존재하지 않습니다.'}
+            return {'success': False, 'message': '보낼 출제자가 존재하지 않습니다.'}
+
 
     def send_author_sms(self):
         # print('sendAuthorSMS called and current Question is ', self.question_data)
+        self._get_question()
         try:
             content = f"(ODOQ)\n문항: {self.question_data['code']}\n답안수: {self.question_data['answer_count']}\n정답수: {self.question_data['solve_count']}\n정답률: {self.question_data['solve_count']/self.question_data['answer_count']*100}%"
         except ZeroDivisionError:
