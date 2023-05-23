@@ -1,11 +1,9 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.combining import AndTrigger
 from apscheduler.triggers.cron import CronTrigger
-from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
+from apscheduler.triggers.interval import IntervalTrigger
 from django.db.models import Q
 import odoq_models.models as OdoqModels
 import api.question as Question
-from utils.common import get_author_phone_numbers, get_student_phone_numbers
 import datetime
 
 
@@ -67,16 +65,24 @@ class SendSMS:
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=22, minute=8, second=10, jitter=3)
-    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=22, minute=8, second=10, jitter=3)
+    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute=30, second=10, jitter=3)
+    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute=25, second=10, jitter=3)
 
-    scheduler.add_job(SendSMS().send_student_sms,
-                      trigger=send_student_trigger,
-                      id='send_student_sms',
-                      replace_existing=True)
+    test_interval_trigger = IntervalTrigger(seconds=30)
+
     scheduler.add_job(SendSMS().send_author_sms,
-                      trigger=send_author_trigger,
-                      id='send_author_sms',
+                      trigger=test_interval_trigger,
+                      id='test_message',
                       replace_existing=True)
+
+    # scheduler.add_job(SendSMS().send_student_sms,
+    #                   trigger=send_student_trigger,
+    #                   id='send_student_sms',
+    #                   replace_existing=True)
+    # scheduler.add_job(SendSMS().send_author_sms,
+    #                   trigger=send_author_trigger,
+    #                   id='send_author_sms',
+    #                   replace_existing=True)
+
     # scheduler.add_job(SendSMS().print_test_message, 'interval', seconds=10, id='test_message')
     scheduler.start()
