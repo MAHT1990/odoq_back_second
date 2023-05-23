@@ -10,6 +10,8 @@ import datetime
 
 
 class SendSMS:
+    def __init__(self):
+        self.question_data = Question.services.GetQuestion({}).make_data()
     def _get_question(self):
         self.question_data = Question.services.GetQuestion({}).make_data()
 
@@ -29,7 +31,6 @@ class SendSMS:
         :param grade: 0: student, 1: author
         :return: dict
         """
-        self._get_question()
         if self.question_data:
             self._get_phone_list(grade)
             if self.target_phone_list:
@@ -66,7 +67,7 @@ class SendSMS:
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=2, minute=11, second=15, jitter=10)
+    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=8, minute=30, second=15, jitter=10)
     send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=23, minute=59, second=00, jitter=30)
 
     scheduler.add_job(SendSMS().send_student_sms,
