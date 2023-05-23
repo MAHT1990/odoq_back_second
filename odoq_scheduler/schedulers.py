@@ -67,8 +67,8 @@ class SendSMS:
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=21, minute=51, second=10, jitter=10)
-    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=21, minute=51, second=10, jitter=10)
+    send_student_trigger = CronTrigger(day_of_week='mon-fri', hour=21, minute=53, second=10, jitter=3)
+    send_author_trigger = CronTrigger(day_of_week='mon-fri', hour=21, minute=53, second=10, jitter=3)
 
     scheduler.add_job(SendSMS().send_student_sms,
                       trigger=send_student_trigger,
