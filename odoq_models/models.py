@@ -15,6 +15,7 @@ class User(models.Model):
     # liked_cocomments = models.ManyToManyField('Cocomment', blank=True, default=None)
     answered_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='answered_users')
     solved_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='solved_users')
+    cheated_questions = models.ManyToManyField('Question', blank=True, default=None, related_name='cheated_users')
     accept_sms = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 

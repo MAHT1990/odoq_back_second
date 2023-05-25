@@ -28,6 +28,20 @@ class QuestionView(APIView):
         )
         return response
 
+    def patch(self, request):
+        # print('cheat Answer')
+        result = services.AnswerCheat(request).make_data()
+        response = makeResponse(
+            'success',
+            'answer is successfully cheated',
+            result,
+        ) if result else makeResponse(
+            'fail',
+            'answer is failed to cheat',
+            result,
+        )
+        return response
+
 
 class AnswerHistoryView(APIView):
     def get(self, request):

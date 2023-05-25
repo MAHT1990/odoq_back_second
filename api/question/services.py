@@ -60,6 +60,7 @@ class GetQuestion:
                 'solve_count': self._question.solve_count,
                 'second_remain': self._scnd_remain,
                 'solved_users': [user_id for user_id in self._question.solved_users.all().values_list('id', flat=True)],
+                'cheated_users': [user_id for user_id in self._question.cheated_users.all().values_list('id', flat=True)],
             }
             # print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
@@ -152,6 +153,30 @@ class GetAnswerLive:
         return self.data
 
 
+class AnswerCheat:
+    def __init__(self, request):
+        self._request = request
+        self.question_id = request.data.get('questionId', None)
+        self.user_id = request.data.get('userId', None)
+
+    def _answer_cheat(self):
+        if self.question_id is not None and self.user_id is not None:
+            question = OdoqModels.Question.objects.get(id=self.question_id)
+            user = OdoqModels.User.objects.get(id=self.user_id)
+            user.cheated_questions.add(question)
+            user.save()
+            self.data = {
+                'cheated_users': [user_id for user_id in question.cheated_users.all().values_list('id', flat=True)],
+            }
+        else:
+            self.data = None
+
+    def make_data(self):
+        self._answer_cheat()
+        return self.data
+
+
+
 class AnswerPost:
     def __init__(self, request):
         self._request = request
@@ -159,9 +184,27 @@ class AnswerPost:
         self.user_id = request.data.get('userId', None)
         self.answer = request.data.get('answer', None)
 
+    def __cal_remain_time(self, question_user_history):
+        cal_remain_time = (30 * len(question_user_history) - 15) - (
+                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
+        ).total_seconds()
+        return cal_remain_time if cal_remain_time > 0 else 15
+
     def _answer_post(self):
         if self.question_id is not None and self.user_id is not None and self.answer is not None:
-            question, user = OdoqModels.Question.objects.get(id=self.question_id), OdoqModels.User.objects.get(id=self.user_id)
+            question = OdoqModels.Question.objects.get(id=self.question_id)
+            user = OdoqModels.User.objects.get(id=self.user_id)
+
+            if question.id in user.cheated_questions.all().values_list('id', flat=True):
+                self.data = {
+                    'is_written': False,
+                    'answer_count': question.answer_count,
+                    'solve_count': question.solve_count,
+                    'can_answer_remain_time': 15,
+                    'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
+                }
+                return
+
             OdoqModels.AnswerHistory.objects.create(
                 question=question,
                 user=user,
@@ -174,10 +217,6 @@ class AnswerPost:
             )
 
 
-            # print('api/question/services.py > AnswerPost > question_user_history', question_user_history)
-            # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
-            # if len(question_user_history) == 0:
-            #     OdoqModels.SmsHistory.send_message
             is_written = False
             can_answer_remain_time = 15 #seconds
             # print('api/question/services.py > AnswerPost > question, user', question, user)
@@ -189,14 +228,12 @@ class AnswerPost:
 
             # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
             # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
+
             if len(question_user_history) < 6 and question not in user.solved_questions.all():
                 question.answer_count += 1
                 user.answered_questions.add(question)
                 is_written = True
 
-                # print('## question.answer', question.answer)
-                # print('## self.answer', self.answer)
-                # print('## question.answer == self.answer', question.answer == self.answer)
                 if question.answer == self.answer:
                     question.solve_count += 1
                     user.solved_questions.add(question)
@@ -207,9 +244,8 @@ class AnswerPost:
                     ).order_by('-created_at')
                     # print('## api/question/services.py > AnswerPost > question_solve_history', question_solve_history)
 
+                    # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
                     if len(question_solve_history) == 1:
-                        # print('api/question/services.py > AnswerPost > question_solve_history', question_solve_history)
-                        # print('첫번째 정답이 등록되었습니다')
                         for phone_number in get_author_phone_numbers():
                             OdoqModels.SmsHistory.send_message(
                                 send_to=phone_number,
@@ -217,22 +253,11 @@ class AnswerPost:
                                 content=f'첫번째 정답이 등록되었습니다.\n{user.name}\n{user.phone}'
                             )
                 else:
-                    can_answer_remain_time = \
-                        (30 * len(question_user_history) - 15) - (
-                                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
-                        ).total_seconds()
-                    if can_answer_remain_time < 0:
-                        can_answer_remain_time = 0
-
+                    can_answer_remain_time = self.__cal_remain_time(question_user_history)
                 question.save(), user.save()
 
             else:
-                can_answer_remain_time = \
-                    (30 * len(question_user_history) - 15) - (
-                                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
-                    ).total_seconds()
-                if can_answer_remain_time < 0:
-                    can_answer_remain_time = 0
+                can_answer_remain_time = self.__cal_remain_time(question_user_history)
 
             self.data = {
                 'is_written': is_written,
@@ -241,8 +266,10 @@ class AnswerPost:
                 'can_answer_remain_time': can_answer_remain_time,
                 'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
             }
+            return
         else:
             self.data = None
+            return
 
     def make_data(self):
         self._answer_post()

@@ -153,6 +153,7 @@ class GetPostDetail:
                 'user_level': self.post.user.solved_questions.count(),
                 'user_name': self.post.user.name,
                 'title': self.post.title,
+                'type': self.post.type,
                 'content': self.post.content,
                 'img_url': self.post.img.url if self.post.img else None,
                 'hit_count': self.post.hit_count,
