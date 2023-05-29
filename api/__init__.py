@@ -1,1 +1,1 @@
-from . import notice, post, user, csrf, question, sms
+from . import notice, post, user, csrf, question, sms, download

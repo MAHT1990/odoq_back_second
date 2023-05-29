@@ -29,6 +29,10 @@ urlpatterns_csrf = [
     path('api/csrf/', api.csrf.views.TokenViewSet.as_view()),
 ]
 
+urlpatterns_download = [
+    path('api/download/', api.download.views.DownloadView.as_view()),
+]
+
 urlpatterns_user = [
     path('api/user/', api.user.views.index),
     path('api/user/accept_sms/', api.user.accept_sms.views.AcceptSMS.as_view()),
@@ -62,6 +66,7 @@ urlpatterns_sms = [
 ]
 
 urlpatterns += urlpatterns_csrf
+urlpatterns += urlpatterns_download
 urlpatterns += urlpatterns_user
 urlpatterns += urlpatterns_question
 urlpatterns += urlpatterns_post

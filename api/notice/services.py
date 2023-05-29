@@ -105,6 +105,7 @@ class GetNoticeDetail:
                     'title': self.notice.title,
                     'content': self.notice.content,
                     'img_url': self.notice.img.url if self.notice.img else None,
+                    'file_name': self.notice.file.name if self.notice.file else None,
                     'hit_count': self.notice.hit_count,
                     'like_count': self.notice.like_count,
                     'liked_users': [user.id for user in self.notice.liked_users.all()],

@@ -127,7 +127,8 @@ class SmsHistory(models.Model):
 class Notice(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    img = models.ImageField(null=True)
+    img = models.ImageField(null=True, blank=True)
+    file = models.FileField(null=True, blank=True, upload_to='files')
     content = models.TextField()
     hit_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
