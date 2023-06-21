@@ -75,43 +75,75 @@ class GetQuestion:
 class GetAnswerHistory:
     def __init__(self, request):
         self._request = request
-        if (request.GET.get('userId', None) != '0'):
-            self.user_id = request.GET.get('userId', None)
-        else:
-            self.user_id = None
-        if (request.GET.get('questionId', None) != '0'):
-            self.question_id = request.GET.get('questionId', None)
-        else:
-            self.question_id = None
+        self.user_id = request.GET.get('userId', None)\
+            if request.GET.get('userId', None) != '0' else None
+        self.question_id = request.GET.get('questionId', None)\
+            if request.GET.get('questionId', None) != '0' else None
+
+        self.user = OdoqModels.User.objects.get(id=self.user_id) if self.user_id is not None else None
+        self.question = OdoqModels.Question.objects.get(id=self.question_id) if self.question_id is not None else None
+
         # print('api/question/services.py > GetAnswerHistory > self.user_id, self.question_id', self.user_id, self.question_id)
 
-    def _get_can_answer_remain_time(self):
-        if self.user_id is not None and self.question_id is not None:
+    def _get_answer_history(self):
+        if self.user is not None and self.question is not None:
             try:
-                user = OdoqModels.User.objects.get(id=self.user_id)
-                question = OdoqModels.Question.objects.get(id=self.question_id)
-                question_answer_history = OdoqModels.AnswerHistory.objects.filter(
-                    user=user,
-                    question=question,
+                self.answer_history = OdoqModels.AnswerHistory.objects.filter(
+                    user=self.user,
+                    question=self.question,
                 ).order_by('-created_at')
-                can_answer_remain_time = \
-                    (30 * len(question_answer_history) - 15) - (
-                            datetime.datetime.now(tz=datetime.timezone.utc) - question_answer_history[0].created_at
-                    ).total_seconds() if len(question_answer_history) > 0 else 0
-                self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
-            except OdoqModels.User.DoesNotExist as e:
+            except OdoqModels.AnswerHistory.DoesNotExist as e:
                 # print(e)
-                self.can_answer_remain_time = 0
-                self.user_not_exist = True
+                self.answer_history = None
+
+    def _get_has_solved_in_limit(self):
+        if self.answer_history is not None:
+            self.has_solved_in_limit = self.answer_history.filter(
+                isSolved=True,
+                over_limit=False,
+            ).exists()
+        else:
+            self.has_solved_in_limit = False
+
+    def _get_can_answer_remain_time(self):
+        if self.answer_history is not None:
+            can_answer_remain_time = \
+                (30 * len(self.answer_history) - 15) - (
+                        datetime.datetime.now(tz=datetime.timezone.utc) - self.answer_history[0].created_at
+                ).total_seconds() if len(self.answer_history) > 0 else 0
+            self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
         else:
             self.can_answer_remain_time = 0
         # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
 
+    def _get_wrong_answer_history(self):
+        if self.answer_history is not None:
+            self.wrong_answer_history = self.answer_history.filter(
+                isSolved=False,
+                over_limit=False,
+            )
+        else:
+            self.wrong_answer_history = None
+        # print('api/question/services.py > GetAnswerHistory > self.wrong_answer_history', self.wrong_answer_history)
+
     def make_data(self):
+        self._get_answer_history()
+        self._get_has_solved_in_limit()
+        self._get_wrong_answer_history()
         self._get_can_answer_remain_time()
         self.data = {
             'user_not_exist': self.user_not_exist if hasattr(self, 'user_not_exist') else False,
+            'has_solved_in_limit': self.has_solved_in_limit,
             'can_answer_remain_time': self.can_answer_remain_time,
+            'wrong_answer_count': len(self.wrong_answer_history) if self.wrong_answer_history is not None else 0,
+            'wrong_answer_history': [
+                {
+                    'id': answer_history.id,
+                    'answer': answer_history.answer,
+                    'isSolved': answer_history.isSolved,
+                    'created_at': answer_history.created_at,
+                } for answer_history in self.wrong_answer_history
+            ] if self.wrong_answer_history is not None else None,
         }
         # print(self.data)
         return self.data
@@ -137,7 +169,7 @@ class GetAnswerLive:
     def make_data(self):
         self._get_answer_live()
         if self.answer_live is not None:
-            self.data = {
+            data = {
                 'answers': [
                     {
                         'user_name': answer.user.name,
@@ -145,13 +177,14 @@ class GetAnswerLive:
                         'answer': answer.answer,
                         'is_solved': answer.isSolved,
                         'created_at': answer.created_at,
+                        'over_limit': answer.over_limit,
                     } for answer in self.answer_live
                 ]
             }
         else:
-            self.data = None
+            data = None
 
-        return self.data
+        return data
 
 
 class AnswerCheat:
@@ -179,93 +212,100 @@ class AnswerCheat:
 
 
 class AnswerPost:
+    ANSWER_COUNT_LIMIT = 5
     def __init__(self, request):
         self._request = request
         self.question_id = request.data.get('questionId', None)
         self.user_id = request.data.get('userId', None)
         self.answer = request.data.get('answer', None)
 
-    def __cal_remain_time(self, question_user_history):
-        cal_remain_time = (30 * len(question_user_history) - 15) - (
-                datetime.datetime.now(tz=datetime.timezone.utc) - question_user_history[0].created_at
+        self.question = OdoqModels.Question.objects.get(id=self.question_id) if self.question_id is not None else None
+        self.user = OdoqModels.User.objects.get(id=self.user_id) if self.user_id is not None else None
+
+    def __is_cheated(self):
+        return True if self.question.id in self.user.cheated_questions.all().values_list('id', flat=True) else False
+
+    def __sms_first_solved_answer(self):
+        question_solve_history = OdoqModels.AnswerHistory.objects.filter(
+            question=self.question,
+            answer=self.question.answer,
+        ).order_by('-created_at')
+
+        # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
+        if len(question_solve_history) == 1:
+            for phone_number in get_author_phone_numbers():
+                OdoqModels.SmsHistory.send_message(
+                    send_to=phone_number,
+                    is_auth=False,
+                    content=f'첫번째 정답이 등록되었습니다.\n{self.user.name}\n{self.user.phone}'
+                )
+
+    def __cal_remain_time(self):
+        cal_remain_time = (30 * len(self.question_user_history) - 15) - (
+                datetime.datetime.now(tz=datetime.timezone.utc) - self.question_user_history[0].created_at
         ).total_seconds()
         return cal_remain_time if cal_remain_time > 0 else 15
 
     def _answer_post(self):
-        if self.question_id is not None and self.user_id is not None and self.answer is not None:
-            question = OdoqModels.Question.objects.get(id=self.question_id)
-            user = OdoqModels.User.objects.get(id=self.user_id)
+        if self.question is not None and self.user is not None:
 
-            if question.id in user.cheated_questions.all().values_list('id', flat=True):
+            # 미리보기 사용한 경우, 응답 만들어서 바로 return
+            if self.__is_cheated():
                 self.data = {
                     'is_written': False,
-                    'answer_count': question.answer_count,
-                    'solve_count': question.solve_count,
+                    'answer_count': self.question.answer_count,
+                    'solve_count': self.question.solve_count,
                     'can_answer_remain_time': 15,
-                    'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
+                    'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
                 }
                 return
 
-            OdoqModels.AnswerHistory.objects.create(
-                question=question,
-                user=user,
+            # 미리보기 사용하지 않는 경우,
+            new_history = OdoqModels.AnswerHistory.objects.create(
+                question=self.question,
+                user=self.user,
                 answer=self.answer,
-                isSolved=question.answer == self.answer,
+                isSolved=self.question.answer == self.answer,
             )
-            question_user_history = OdoqModels.AnswerHistory.objects.filter(
-                question=question,
-                user=user,
+            self.question_user_history = OdoqModels.AnswerHistory.objects.filter(
+                question=self.question,
+                user=self.user,
             )
 
-
-            is_written = False
             can_answer_remain_time = 15 #seconds
-            # print('api/question/services.py > AnswerPost > question, user', question, user)
-            # print('api/question/services.py > AnswerPost > user.answered_questions', user.answered_questions.all())
-            # print('api/question/services.py > AnswerPost > user.solved_questions', user.solved_questions.all())
-            # print('api/question/services.py > AnswerPost > question_user_history', question_user_history)
-            # print('api/question/services.py > AnswerPost > question_user_history.count()', question_user_history.count())
-            # print('api/question/services.py > AnswerPost > len(question_user_history)', len(question_user_history))
 
             # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
             # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
 
-            if len(question_user_history) < 6 and question not in user.solved_questions.all():
-                question.answer_count += 1
-                user.answered_questions.add(question)
-                is_written = True
+            if len(self.question_user_history) <= self.ANSWER_COUNT_LIMIT and self.question not in self.user.solved_questions.all():
+                self.question.answer_count += 1
+                self.user.answered_questions.add(self.question)
 
-                if question.answer == self.answer:
-                    question.solve_count += 1
-                    user.solved_questions.add(question)
-
-                    question_solve_history = OdoqModels.AnswerHistory.objects.filter(
-                        question=question,
-                        answer=question.answer,
-                    ).order_by('-created_at')
-                    # print('## api/question/services.py > AnswerPost > question_solve_history', question_solve_history)
-
-                    # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
-                    if len(question_solve_history) == 1:
-                        for phone_number in get_author_phone_numbers():
-                            OdoqModels.SmsHistory.send_message(
-                                send_to=phone_number,
-                                is_auth=False,
-                                content=f'첫번째 정답이 등록되었습니다.\n{user.name}\n{user.phone}'
-                            )
+                if self.question.answer == self.answer:
+                    self.question.solve_count += 1
+                    self.user.solved_questions.add(self.question)
+                    self.__sms_first_solved_answer()
                 else:
-                    can_answer_remain_time = self.__cal_remain_time(question_user_history)
-                question.save(), user.save()
+                    can_answer_remain_time = self.__cal_remain_time()
+                self.question.save(), self.user.save()
 
+            elif len(self.question_user_history) > self.ANSWER_COUNT_LIMIT:
+                self.user.answered_questions.add(self.question)
+                new_history.over_limit = True
+
+                if self.question.answer == self.answer:
+                    self.user.solved_questions.add(self.question)
+                else:
+                    can_answer_remain_time = self.__cal_remain_time()
+                self.user.save(), new_history.save()
             else:
-                can_answer_remain_time = self.__cal_remain_time(question_user_history)
+                can_answer_remain_time = self.__cal_remain_time()
 
             self.data = {
-                'is_written': is_written,
-                'answer_count': question.answer_count,
-                'solve_count': question.solve_count,
+                'answer_count': self.question.answer_count,
+                'solve_count': self.question.solve_count,
                 'can_answer_remain_time': can_answer_remain_time,
-                'solved_users': [user_id for user_id in question.solved_users.all().values_list('id', flat=True)],
+                'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
             }
             return
         else:
@@ -274,4 +314,5 @@ class AnswerPost:
 
     def make_data(self):
         self._answer_post()
+        # print('self.data', self.data)
         return self.data

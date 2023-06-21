@@ -165,6 +165,7 @@ class AnswerHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     answer = models.CharField(max_length=255)
     isSolved = models.BooleanField(default=False)
+    over_limit = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 

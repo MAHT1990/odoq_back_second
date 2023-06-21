@@ -55,6 +55,7 @@ class AnswerHistoryAdmin(admin.ModelAdmin):
         'user_name',
         'answer',
         'isSolved',
+        'over_limit',
         'created_at',
     ]
     list_display_links = [
