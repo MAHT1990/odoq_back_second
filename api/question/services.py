@@ -136,13 +136,13 @@ class GetAnswerHistory:
             'has_solved_in_limit': self.has_solved_in_limit,
             'can_answer_remain_time': self.can_answer_remain_time,
             'wrong_answer_count': len(self.wrong_answer_history) if self.wrong_answer_history is not None else 0,
-            'wrong_answer_history': [
+            'answer_history': [
                 {
                     'id': answer_history.id,
                     'answer': answer_history.answer,
                     'isSolved': answer_history.isSolved,
                     'created_at': answer_history.created_at,
-                } for answer_history in self.wrong_answer_history
+                } for answer_history in self.answer_history
             ] if self.wrong_answer_history is not None else None,
         }
         # print(self.data)
@@ -278,6 +278,7 @@ class AnswerPost:
             # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
 
             if len(self.question_user_history) <= self.ANSWER_COUNT_LIMIT and self.question not in self.user.solved_questions.all():
+                # 5회 이하 정답 못 맞춤.
                 self.question.answer_count += 1
                 self.user.answered_questions.add(self.question)
 
@@ -290,6 +291,7 @@ class AnswerPost:
                 self.question.save(), self.user.save()
 
             elif len(self.question_user_history) > self.ANSWER_COUNT_LIMIT:
+                # 5회 초과
                 self.user.answered_questions.add(self.question)
                 new_history.over_limit = True
 
@@ -299,6 +301,7 @@ class AnswerPost:
                     can_answer_remain_time = self.__cal_remain_time()
                 self.user.save(), new_history.save()
             else:
+                # 5회 이하 && 정답 맞춤.
                 can_answer_remain_time = self.__cal_remain_time()
 
             self.data = {
