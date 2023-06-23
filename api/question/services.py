@@ -110,7 +110,7 @@ class GetAnswerHistory:
 
     def _get_can_answer_remain_time(self):
         if hasattr(self, 'answer_history'):
-            if self.get('answer_history', None) is not None:
+            if self.answer_history is not None:
                 can_answer_remain_time = \
                     (30 * len(self.answer_history) - 15) - (
                             datetime.datetime.now(tz=datetime.timezone.utc) - self.answer_history[0].created_at
@@ -124,7 +124,7 @@ class GetAnswerHistory:
 
     def _get_wrong_answer_history(self):
         if hasattr(self, 'answer_history'):
-            if self.get('answer_history', None) is not None:
+            if self.answer_history is not None:
                 self.wrong_answer_history = self.answer_history.filter(
                     isSolved=False,
                     over_limit=False,
