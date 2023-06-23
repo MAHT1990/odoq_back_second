@@ -97,31 +97,40 @@ class GetAnswerHistory:
                 self.answer_history = None
 
     def _get_has_solved_in_limit(self):
-        if self.answer_history is not None:
-            self.has_solved_in_limit = self.answer_history.filter(
-                isSolved=True,
-                over_limit=False,
-            ).exists()
+        if hasattr(self, 'answer_history'):
+            if self.answer_history is not None:
+                self.has_solved_in_limit = self.answer_history.filter(
+                    isSolved=True,
+                    over_limit=False,
+                ).exists()
+            else:
+                self.has_solved_in_limit = False
         else:
             self.has_solved_in_limit = False
 
     def _get_can_answer_remain_time(self):
-        if self.answer_history is not None:
-            can_answer_remain_time = \
-                (30 * len(self.answer_history) - 15) - (
-                        datetime.datetime.now(tz=datetime.timezone.utc) - self.answer_history[0].created_at
-                ).total_seconds() if len(self.answer_history) > 0 else 0
-            self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+        if hasattr(self, 'answer_history'):
+            if self.get('answer_history', None) is not None:
+                can_answer_remain_time = \
+                    (30 * len(self.answer_history) - 15) - (
+                            datetime.datetime.now(tz=datetime.timezone.utc) - self.answer_history[0].created_at
+                    ).total_seconds() if len(self.answer_history) > 0 else 0
+                self.can_answer_remain_time = can_answer_remain_time if can_answer_remain_time > 0 else 0
+            else:
+                self.can_answer_remain_time = 0
         else:
             self.can_answer_remain_time = 0
         # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
 
     def _get_wrong_answer_history(self):
-        if self.answer_history is not None:
-            self.wrong_answer_history = self.answer_history.filter(
-                isSolved=False,
-                over_limit=False,
-            )
+        if hasattr(self, 'answer_history'):
+            if self.get('answer_history', None) is not None:
+                self.wrong_answer_history = self.answer_history.filter(
+                    isSolved=False,
+                    over_limit=False,
+                )
+            else:
+                self.wrong_answer_history = None
         else:
             self.wrong_answer_history = None
         # print('api/question/services.py > GetAnswerHistory > self.wrong_answer_history', self.wrong_answer_history)
