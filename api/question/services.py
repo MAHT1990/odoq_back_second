@@ -182,6 +182,7 @@ class GetAnswerLive:
                 'answers': [
                     {
                         'user_name': answer.user.name,
+                        'user_grade': answer.user.grade,
                         'user_level': answer.user.solved_questions.count(),
                         'answer': answer.answer,
                         'is_solved': answer.isSolved,
