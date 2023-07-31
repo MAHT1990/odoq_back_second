@@ -3,45 +3,41 @@ import datetime
 from utils.common import get_author_phone_numbers
 
 
-class GetQuestion:
+class QuestionService:
+    now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
+    now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
+    _data = None
+    _question = None
+    _scnd_remain = None
+
     def __init__(self, request):
-        self.data = None
         self._request = request
         self._qs_qstn = OdoqModels.Question.objects.all()
-        self._question = None
-        self._scnd_remain = None
 
     def __get_remain_scnd_and_q(self, question):
-        now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
-        return abs((question.upload_datetime - now_utc).total_seconds()), question
+        return abs((question.upload_datetime - self.now_utc).total_seconds()), question
 
     def __get_question(self):
         """
         현재 공개할 문제와, 다음 문제에의 남은시간
         :return: dict
         """
-        now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
-        now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
-
-        # TODO: 없으면 None으로 잡히고, None의 attribute 접근에 대하여 AttributeError
-
         if len(self._qs_qstn) > 0:
             try:
                 list_question_current_and_next = [
                     min(list(map(self.__get_remain_scnd_and_q, qs)), key=lambda x: x[0])
                     for qs in [
-                            self._qs_qstn.filter(upload_datetime__lte=now_utc),
-                            self._qs_qstn.filter(upload_datetime__gte=now_utc)
+                            self._qs_qstn.filter(upload_datetime__lte=self.now_utc),
+                            self._qs_qstn.filter(upload_datetime__gte=self.now_utc)
                         ]
                 ]
-
                 self._question = list_question_current_and_next[0][1]
                 self._scnd_remain = list_question_current_and_next[1][0]
             except ValueError as e:
                 # print(e)
                 self._question = min(list(map(self.__get_remain_scnd_and_q,
                             self._qs_qstn.filter(
-                                upload_datetime__lte=now_utc
+                                upload_datetime__lte=self.now_utc
                             ))), key=lambda x: x[0])[1]
                 self._scnd_remain = None
         else:
@@ -50,7 +46,7 @@ class GetQuestion:
     def make_data(self):
         self.__get_question()
         try:
-            self.data = {
+            self._data = {
                 'id': self._question.id,
                 'code': self._question.code,
                 'season': self._question.season,
@@ -59,17 +55,14 @@ class GetQuestion:
                 'answer_count': self._question.answer_count,
                 'solve_count': self._question.solve_count,
                 'second_remain': self._scnd_remain,
-                'solved_users': [user_id for user_id in self._question.solved_users.all().values_list('id', flat=True)],
-                'cheated_users': [user_id for user_id in self._question.cheated_users.all().values_list('id', flat=True)],
+                'solved_users': self._question.get_solved_users_list(),
+                'cheated_users': self._question.get_cheated_users_list(),
             }
-            # print('api/question/services.py > GetQuestion > self.data', self.data)
         except AttributeError as e:
-            # print('에러가 나나요요오오옹??')
             # print(e)
-            self.data = None
-        # print(self.data)
-        # print('api/question/services.py > GetQuestion > self.data', self.data)
-        return self.data
+            self._data = None
+        # print('api/question/services.py > QuestionService > self.data', self._data)
+        return self._data
 
 
 class GetAnswerHistory:
@@ -221,7 +214,7 @@ class AnswerCheat:
 
 
 
-class AnswerPost:
+class AnswerSubmitService:
     ANSWER_COUNT_LIMIT = 5
     def __init__(self, request):
         self._request = request

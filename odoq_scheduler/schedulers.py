@@ -9,7 +9,7 @@ import datetime
 
 class SendSMS:
     def _get_question(self):
-        self.question_data = Question.services.GetQuestion({}).make_data()
+        self.question_data = Question.services.QuestionService({}).make_data()
 
     def _get_phone_list(self, grade):
         """

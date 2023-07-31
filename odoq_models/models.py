@@ -159,6 +159,12 @@ class Question(models.Model):
     def __str__(self):
         return self.code
 
+    def get_solved_users_list(self):
+        return [user_id for user_id in self.solved_users.all().values_list('id', flat=True)]
+
+    def get_cheated_users_list(self):
+        return [user_id for user_id in self.cheated_users.all().values_list('id', flat=True)]
+
 
 class AnswerHistory(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

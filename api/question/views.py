@@ -5,42 +5,34 @@ from . import services
 
 class QuestionView(APIView):
     def get(self, request):
-        # print('getquestion called')
-        result = services.GetQuestion(request).make_data()
+        # print('QuestionService called')
+        data = services.QuestionService(request).make_data()
         response = makeResponse(
-            'success',
-            'Question is successfully fetched',
-            result,
+            result='success',
+            message='Question is successfully fetched',
+            data=data,
         )
         return response
 
     def post(self, request):
         # print('postquestion called')
-        result = services.AnswerPost(request).make_data()
-        response = makeResponse(
-            'success',
-            'answer is successfully posted',
-            result,
-        ) if result else makeResponse(
-            'fail',
-            'answer is failed to post',
-            result,
+        data = services.AnswerSubmitService(request).make_data()
+        result, message, data = (
+            'success', 'answer is successfully posted', data
+        ) if data else (
+            'fail', 'answer is failed to post', data
         )
-        return response
+        return makeResponse(result, message, data)
 
     def patch(self, request):
         # print('cheat Answer')
-        result = services.AnswerCheat(request).make_data()
-        response = makeResponse(
-            'success',
-            'answer is successfully cheated',
-            result,
-        ) if result else makeResponse(
-            'fail',
-            'answer is failed to cheat',
-            result,
+        data = services.AnswerCheat(request).make_data()
+        result, message, data = (
+            'success', 'answer is successfully cheated', data
+        ) if data else (
+            'fail', 'answer is failed to cheat', data
         )
-        return response
+        return makeResponse(result, message, data)
 
 
 class AnswerHistoryView(APIView):
