@@ -1,6 +1,5 @@
 import odoq_models.models as OdoqModels
 import datetime
-from utils.common import get_author_phone_numbers
 
 
 class QuestionService:
@@ -65,7 +64,7 @@ class QuestionService:
         return self._data
 
 
-class GetAnswerHistory:
+class AnswerHistoryService:
     def __init__(self, request):
         self._request = request
         self.user_id = request.GET.get('userId', None)\
@@ -76,7 +75,7 @@ class GetAnswerHistory:
         self.user = OdoqModels.User.objects.get(id=self.user_id) if self.user_id is not None else None
         self.question = OdoqModels.Question.objects.get(id=self.question_id) if self.question_id is not None else None
 
-        # print('api/question/services.py > GetAnswerHistory > self.user_id, self.question_id', self.user_id, self.question_id)
+        # print('api/question/services.py > AnswerHistoryService > self.user_id, self.question_id', self.user_id, self.question_id)
 
     def _get_answer_history(self):
         if self.user is not None and self.question is not None:
@@ -113,7 +112,7 @@ class GetAnswerHistory:
                 self.can_answer_remain_time = 0
         else:
             self.can_answer_remain_time = 0
-        # print('api/question/services.py > GetAnswerHistory > self.can_answer_remain_time', self.can_answer_remain_time)
+        # print('api/question/services.py > AnswerHistoryService > self.can_answer_remain_time', self.can_answer_remain_time)
 
     def _get_wrong_answer_history(self):
         if hasattr(self, 'answer_history'):
@@ -126,7 +125,7 @@ class GetAnswerHistory:
                 self.wrong_answer_history = None
         else:
             self.wrong_answer_history = None
-        # print('api/question/services.py > GetAnswerHistory > self.wrong_answer_history', self.wrong_answer_history)
+        # print('api/question/services.py > AnswerHistoryService > self.wrong_answer_history', self.wrong_answer_history)
 
     def make_data(self):
         self._get_answer_history()
@@ -151,7 +150,7 @@ class GetAnswerHistory:
         return self.data
 
 
-class GetAnswerLive:
+class AnswerLiveService:
     def __init__(self, request):
         self._request = request
         if request.GET.get('questionId', None) != '0':
@@ -190,7 +189,7 @@ class GetAnswerLive:
         return data
 
 
-class AnswerCheat:
+class AnswerCheatService:
     def __init__(self, request):
         self._request = request
         self.question_id = request.data.get('questionId', None)
@@ -218,12 +217,12 @@ class AnswerSubmitService:
     ANSWER_COUNT_LIMIT = 5
     def __init__(self, request):
         self._request = request
-        self.question_id = request.data.get('questionId', None)
-        self.user_id = request.data.get('userId', None)
-        self.answer = request.data.get('answer', None)
+        self._question_id = request.data.get('questionId', None)
+        self._user_id = request.data.get('userId', None)
+        self._answer = request.data.get('answer', None)
 
-        self.question = OdoqModels.Question.objects.get(id=self.question_id) if self.question_id is not None else None
-        self.user = OdoqModels.User.objects.get(id=self.user_id) if self.user_id is not None else None
+        self.question = OdoqModels.Question.get_question_by_id(self._question_id)
+        self.user = OdoqModels.User.get_user_by_id(self._user_id)
 
     def __is_cheated(self):
         return True if self.question.id in self.user.cheated_questions.all().values_list('id', flat=True) else False
@@ -236,7 +235,7 @@ class AnswerSubmitService:
 
         # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
         if len(question_solve_history) == 1:
-            for phone_number in get_author_phone_numbers():
+            for phone_number in OdoqModels.User.get_author_phone_numbers():
                 OdoqModels.SmsHistory.send_message(
                     send_to=phone_number,
                     is_auth=False,
@@ -250,75 +249,60 @@ class AnswerSubmitService:
         return cal_remain_time if cal_remain_time > 0 else 15
 
     def _answer_post(self):
-        if self.question is not None and self.user is not None:
-
-            # 미리보기 사용한 경우, 응답 만들어서 바로 return
-            if self.__is_cheated():
-                self.data = {
-                    'is_written': False,
-                    'answer_count': self.question.answer_count,
-                    'solve_count': self.question.solve_count,
-                    'can_answer_remain_time': 15,
-                    'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
-                }
-                return
-
-            # 미리보기 사용하지 않는 경우,
-            new_history = OdoqModels.AnswerHistory.objects.create(
-                question=self.question,
-                user=self.user,
-                answer=self.answer,
-                isSolved=self.question.answer == self.answer,
-            )
-            self.question_user_history = OdoqModels.AnswerHistory.objects.filter(
-                question=self.question,
-                user=self.user,
-            )
-
-            can_answer_remain_time = 15 #seconds
-
-            # 해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
-            # 해당 문항을 현재 학생이 풀었을 경우에는 반영하지 않음.
-
-            if len(self.question_user_history) <= self.ANSWER_COUNT_LIMIT and self.question not in self.user.solved_questions.all():
-                # 5회 이하 정답 못 맞춤.
-                self.question.answer_count += 1
-                self.user.answered_questions.add(self.question)
-
-                if self.question.answer == self.answer:
-                    self.question.solve_count += 1
-                    self.user.solved_questions.add(self.question)
-                    self.__sms_first_solved_answer()
-                else:
-                    can_answer_remain_time = self.__cal_remain_time()
-                self.question.save(), self.user.save()
-
-            elif len(self.question_user_history) > self.ANSWER_COUNT_LIMIT:
-                # 5회 초과
-                self.user.answered_questions.add(self.question)
-                new_history.over_limit = True
-
-                if self.question.answer == self.answer:
-                    self.user.solved_questions.add(self.question)
-                else:
-                    can_answer_remain_time = self.__cal_remain_time()
-                self.user.save(), new_history.save()
-            else:
-                # 5회 이하 && 정답 맞춤.
-                can_answer_remain_time = self.__cal_remain_time()
-
-            self.data = {
-                'answer_count': self.question.answer_count,
-                'solve_count': self.question.solve_count,
-                'can_answer_remain_time': can_answer_remain_time,
-                'solved_users': [user_id for user_id in self.question.solved_users.all().values_list('id', flat=True)],
-            }
-            return
-        else:
+        if self.question is None or self.user is None:
             self.data = None
             return
 
+        # 미리보기 사용한 경우, 응답 만들어서 바로 return
+        if self.__is_cheated():
+            self._can_answer_remain_time = 15
+            return
+
+        new_history = OdoqModels.AnswerHistory.objects.create(
+            question=self.question, user=self.user, answer=self._answer,
+            isSolved=self.question.answer == self._answer,
+        )
+        self.question_user_history = OdoqModels.AnswerHistory.objects.filter(
+            question=self.question, user=self.user,
+        )
+
+        """
+        해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
+        해당 문항을 현재 학생이 이미 풀었을 경우에는 반영하지 않음.
+        """
+
+        if len(self.question_user_history) <= self.ANSWER_COUNT_LIMIT and self.question not in self.user.solved_questions.all():
+            self.question.answer_count += 1
+            self.user.answered_questions.add(self.question)
+
+            if self.question.answer == self._answer:
+                self.question.solve_count += 1
+                self.user.solved_questions.add(self.question)
+                self.__sms_first_solved_answer()
+            else:
+                self.can_answer_remain_time = self.__cal_remain_time()
+            self.question.save(), self.user.save()
+
+        elif len(self.question_user_history) > self.ANSWER_COUNT_LIMIT:
+            # 5회 초과
+            self.user.answered_questions.add(self.question)
+            new_history.over_limit = True
+
+            if self.question.answer == self._answer:
+                self.user.solved_questions.add(self.question)
+            else:
+                self._can_answer_remain_time = self.__cal_remain_time()
+            self.user.save(), new_history.save()
+        else:
+            # 5회 이하 && 이미 맞춘 문제.
+            self._can_answer_remain_time = self.__cal_remain_time()
+
     def make_data(self):
         self._answer_post()
-        # print('self.data', self.data)
-        return self.data
+        return {
+            'is_written': False if self.__is_cheated() else True,
+            'answer_count': self.question.answer_count,
+            'solve_count': self.question.solve_count,
+            'can_answer_remain_time': self._can_answer_remain_time,
+            'solved_users': self.question.get_solved_users_list(),
+        }
