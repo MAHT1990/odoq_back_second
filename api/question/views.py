@@ -35,10 +35,32 @@ class QuestionView(APIView):
         return makeResponse(result, message, data)
 
 
+class AnswerView(APIView):
+    def post(self, request):
+        # print('postquestion called')
+        data = services.AnswerSubmitService(request).make_data()
+        result, message, data = (
+            'success', 'answer is successfully posted', data
+        ) if data else (
+            'fail', 'answer is failed to post', data
+        )
+        return makeResponse(result, message, data)
+
+    def patch(self, request):
+        # print('cheat Answer')
+        data = services.AnswerCheatService(request).make_data()
+        result, message, data = (
+            'success', 'answer is successfully cheated', data
+        ) if data else (
+            'fail', 'answer is failed to cheat', data
+        )
+        return makeResponse(result, message, data)
+
 class AnswerHistoryView(APIView):
     def get(self, request):
-        # print('getanswerhistory called')
-        result = services.GetAnswerHistory(request).make_data()
+        # print('AnswerHistoryService called')
+        result = services.AnswerHistoryService(request).make_data()
+        print('AnswerHistory get result is ', result)
         response = makeResponse(
             'success',
             'AnswerHistory is successfully fetched',
@@ -49,8 +71,9 @@ class AnswerHistoryView(APIView):
 
 class AnswerLiveView(APIView):
     def get(self, request):
-        # print('getanswerlive called')
-        result = services.GetAnswerLive(request).make_data()
+        # print('AnswerLiveService called')
+        result = services.AnswerLiveService(request).make_data()
+        print('AnswerLive get result is ', result)
         response = makeResponse(
             'success',
             'AnswerLive is successfully loaded',
