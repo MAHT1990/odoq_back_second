@@ -51,8 +51,9 @@ urlpatterns_notice = [
 
 urlpatterns_question = [
     path('api/question/', api.question.views.QuestionView.as_view()),
-    path('api/question/answer_history/', api.question.views.AnswerHistoryView.as_view()),
-    path('api/question/answer_live/', api.question.views.AnswerLiveView.as_view()),
+    path('api/question/answer/', api.question.views.AnswerView.as_view()),
+    path('api/question/answer/history/', api.question.views.AnswerHistoryView.as_view()),
+    path('api/question/answer/live/', api.question.views.AnswerLiveView.as_view()),
 ]
 
 urlpatterns_post = [
