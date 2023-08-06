@@ -45,7 +45,7 @@ class QuestionService:
     def make_data(self):
         self.__get_question()
         try:
-            self._data = {
+            data = {
                 'id': self._question.id,
                 'code': self._question.code,
                 'season': self._question.season,
@@ -59,9 +59,9 @@ class QuestionService:
             }
         except AttributeError as e:
             # print(e)
-            self._data = None
+            data = None
         # print('api/question/services.py > QuestionService > self.data', self._data)
-        return self._data
+        return data
 
 
 class AnswerHistoryService:
@@ -132,7 +132,7 @@ class AnswerHistoryService:
         self._get_has_solved_in_limit()
         self._get_wrong_answer_history()
         self._get_can_answer_remain_time()
-        self.data = {
+        data = {
             'user_not_exist': self.user_not_exist if hasattr(self, 'user_not_exist') else False,
             'has_solved_in_limit': self.has_solved_in_limit,
             'can_answer_remain_time': self.can_answer_remain_time,
@@ -146,8 +146,8 @@ class AnswerHistoryService:
                 } for answer_history in self.answer_history
             ] if self.wrong_answer_history is not None else None,
         }
-        # print(self.data)
-        return self.data
+        # print(data)
+        return data
 
 
 class AnswerLiveService:
@@ -185,7 +185,6 @@ class AnswerLiveService:
             }
         else:
             data = None
-
         return data
 
 
@@ -196,20 +195,21 @@ class AnswerCheatService:
         self.user_id = request.data.get('userId', None)
 
     def _answer_cheat(self):
-        if self.question_id is not None and self.user_id is not None:
-            question = OdoqModels.Question.objects.get(id=self.question_id)
-            user = OdoqModels.User.objects.get(id=self.user_id)
-            user.cheated_questions.add(question)
-            user.save()
-            self.data = {
-                'cheated_users': [user_id for user_id in question.cheated_users.all().values_list('id', flat=True)],
-            }
-        else:
-            self.data = None
+        question = OdoqModels.Question.get_question_by_id(self.question_id)
+        user = OdoqModels.User.objects.get(id=self.user_id)
+        user.cheated_questions.add(question)
+        user.save()
+        self._cheated_users = question.get_cheated_users_list()
 
     def make_data(self):
+        if self.question_id is None or self.user_id is None:
+            return None
+
         self._answer_cheat()
-        return self.data
+        data = {
+            'cheated_users': self._cheated_users,
+        }
+        return data
 
 
 
