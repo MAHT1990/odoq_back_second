@@ -72,8 +72,8 @@ class AnswerHistoryService:
         self.question_id = request.GET.get('questionId', None)\
             if request.GET.get('questionId', None) != '0' else None
 
-        self.user = OdoqModels.User.objects.get(id=self.user_id) if self.user_id is not None else None
-        self.question = OdoqModels.Question.objects.get(id=self.question_id) if self.question_id is not None else None
+        self.user = OdoqModels.User.get_user_by_id(self.user_id)
+        self.question = OdoqModels.Question.get_question_by_id(self.question_id)
 
         # print('api/question/services.py > AnswerHistoryService > self.user_id, self.question_id', self.user_id, self.question_id)
 

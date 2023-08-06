@@ -60,7 +60,7 @@ class AnswerHistoryView(APIView):
     def get(self, request):
         # print('AnswerHistoryService called')
         result = services.AnswerHistoryService(request).make_data()
-        print('AnswerHistory get result is ', result)
+        # print('AnswerHistory get result is ', result)
         response = makeResponse(
             'success',
             'AnswerHistory is successfully fetched',
@@ -73,7 +73,7 @@ class AnswerLiveView(APIView):
     def get(self, request):
         # print('AnswerLiveService called')
         result = services.AnswerLiveService(request).make_data()
-        print('AnswerLive get result is ', result)
+        # print('AnswerLive get result is ', result)
         response = makeResponse(
             'success',
             'AnswerLive is successfully loaded',
