@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.db.models import Q
 
 
 # Create your models here.
@@ -19,6 +20,17 @@ class User(models.Model):
     accept_sms = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
+    @staticmethod
+    def get_user_by_id(id):
+        return User.objects.get(id=id) if id is not None else None
+
+    @staticmethod
+    def get_author_phone_numbers():
+        return User.objects.filter(Q(grade=1) | Q(grade=2)).filter(accept_sms=True).values_list('phone', flat=True)
+
+    @staticmethod
+    def get_student_phone_numbers():
+        return User.objects.filter(grade=0).filter(accept_sms=True).values_list('phone', flat=True)
 
 # SMS 인증 관련.
 def SMS_HISTORY_AUTH_EXPIRE():
@@ -164,6 +176,10 @@ class Question(models.Model):
 
     def get_cheated_users_list(self):
         return [user_id for user_id in self.cheated_users.all().values_list('id', flat=True)]
+
+    @staticmethod
+    def get_question_by_id(id):
+        return Question.objects.get(id=id) if id is not None else None
 
 
 class AnswerHistory(models.Model):
