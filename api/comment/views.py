@@ -12,7 +12,7 @@ class CommentView(APIView):
 
 
     def get(self, request, id):
-        # print('GetPosts get called')
+        # print('GetPostsService get called')
         # print('request.path', request.path)
         self.__get_post_or_notice(request)
         result = services.GetComments(

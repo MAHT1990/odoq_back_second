@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 
-class GetPosts:
+class GetPostsService:
     def __init__(self, request):
         # print('request.GET in post.services is ', request.GET)
         # print('request.data in post.services is ', request.data)
@@ -125,7 +125,7 @@ class GetPosts:
         return self.data
 
 
-class GetPostDetail:
+class GetPostDetailService:
     def __init__(self, request, post_id):
         self.post_id = post_id
         self.data = {}
@@ -172,13 +172,13 @@ class GetPostDetail:
         }
 
 
-class LikePost:
+class LikePostService:
     def __init__(self, request):
-        # print('request.data in likePost is ', request.data)
+        # print('request.data in LikePostService is ', request.data)
         self.post_id = request.data.get('postId', None)
         self.user_id = request.data.get('userId', None)
-        # print('post/services.py > LikePost self.post_id is ', self.post_id, type(self.post_id))
-        # print('post/services.py > LikePost self.user_id is ', self.user_id, type(self.user_id))
+        # print('post/services.py > LikePostService self.post_id is ', self.post_id, type(self.post_id))
+        # print('post/services.py > LikePostService self.user_id is ', self.user_id, type(self.user_id))
 
     def _like_post(self):
         if self.post_id is not None and self.user_id is not None:
@@ -211,13 +211,13 @@ class LikePost:
         return self.data
 
 
-class BlindPost:
+class BlindPostService:
     def __init__(self, request):
         self.post_id = request.data.get('postId', None)
         self.user_grade = request.data.get('userGrade', None)
 
     def _blind_post(self):
-        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
+        # print('post/services.py > BlindPostService self.user_grade is ', self.user_grade, type(self.user_grade))
         if self.post_id is not None:
             post = OdoqModels.Post.objects.get(id=self.post_id)
             post.blind = not post.blind
@@ -229,7 +229,7 @@ class BlindPost:
                 'blind_text': post.blind_text,
                 'post_id': self.post_id,
             }
-            # print('post/services.py > BlindPost self.data is ', self.data)
+            # print('post/services.py > BlindPostService self.data is ', self.data)
         else:
             self.data = {
                 'success': False,
@@ -239,7 +239,7 @@ class BlindPost:
         self._blind_post()
         return self.data
 
-class DeletePost:
+class DeletePostService:
     def __init__(self, request, post_id):
         self.post_id = post_id
 

@@ -7,8 +7,8 @@ from api.comment.views import CommentView
 
 class PostView(APIView):
     def get(self, request):
-        # print('GetPosts get called')
-        result = services.GetPosts(request).make_data()
+        # print('GetPostsService get called')
+        result = services.GetPostsService(request).make_data()
         response = makeResponse(
             'success',
             '',
@@ -23,13 +23,13 @@ class PostView(APIView):
         post_before_validated = serializers.PostSerializer(data=request.data)
         if post_before_validated.is_valid():
             post_before_validated.save()
-            result = services.GetPosts(request).make_data()
+            result = services.GetPostsService(request).make_data()
 
         # print('result is ', result);
 
         response = makeResponse(
             'success',
-            '댓글이 성공적으로 등록되었습니다.',
+            '게시글이 성공적으로 등록되었습니다.',
             result,
         )
         return response
@@ -44,7 +44,7 @@ class PostView(APIView):
 
         flag = request.data.get('flag', None)
         if flag == 'like':
-            result = services.LikePost(request).make_data()
+            result = services.LikePostService(request).make_data()
             # print('result of like functionality is ', result)
             if result['success']:
                 result_message = '좋아요가 성공적으로 반영되었습니다.'
@@ -55,7 +55,7 @@ class PostView(APIView):
             pass
 
         elif flag == 'blind':
-            result = services.BlindPost(request).make_data()
+            result = services.BlindPostService(request).make_data()
             # print('result of blind functionality is ', result)
             if result['success']:
                 if result['blind']:
@@ -75,9 +75,9 @@ class PostView(APIView):
 
 class PostDetailView(APIView):
     def get(self, request, post_id):
-        # print('getPostDetail get called')
+        # print('GetPostDetailService get called')
         # print('post_id is ', post_id)
-        result = services.GetPostDetail(request, post_id).make_data()
+        result = services.GetPostDetailService(request, post_id).make_data()
         response = makeResponse(
             'success' if result['success'] else 'error',
             '',
@@ -86,8 +86,8 @@ class PostDetailView(APIView):
         return response
 
     def delete(self, request, post_id):
-        # print('deletePost get called')
-        result = services.DeletePost(request, post_id).make_data()
+        # print('DeletePostService get called')
+        result = services.DeletePostService(request, post_id).make_data()
         # print('result of delete functionality is ', result)
         if result['success']:
             result_message = '게시글이 성공적으로 삭제되었습니다.'

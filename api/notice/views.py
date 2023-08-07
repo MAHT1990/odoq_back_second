@@ -18,7 +18,7 @@ class NoticeView(APIView):
 
 class NoticeDetailView(APIView):
     def get(self, request, notice_id):
-        # print('getPostDetail get called')
+        # print('GetPostDetailService get called')
         # print('post_id is ', post_id)
         result = services.GetNoticeDetail(request, notice_id).make_data()
         response = makeResponse(
@@ -31,7 +31,7 @@ class NoticeDetailView(APIView):
 
 class CommentView(APIView):
     def get(self, request, post_id):
-        # print('GetPosts get called')
+        # print('GetPostsService get called')
         result = services.GetComments(request, post_id).make_data()
         response = makeResponse(
             'success',

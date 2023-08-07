@@ -102,7 +102,7 @@ class BlindComment:
         self.target_model = OdoqModels.Comment
 
     def _blind_comment(self):
-        # print('post/services.py > BlindPost self.user_grade is ', self.user_grade, type(self.user_grade))
+        # print('post/services.py > BlindPostService self.user_grade is ', self.user_grade, type(self.user_grade))
         if self.target_id is not None:
             target = self.target_model.objects.get(id=self.target_id)
             target.blind = not target.blind
@@ -114,7 +114,7 @@ class BlindComment:
                 'blind_text': target.blind_text,
                 'target_id': self.target_id,
             }
-            # print('post/services.py > BlindPost self.data is ', self.data)
+            # print('post/services.py > BlindPostService self.data is ', self.data)
         else:
             self.data = {
                 'success': False,
