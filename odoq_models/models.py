@@ -22,7 +22,10 @@ class User(models.Model):
 
     @staticmethod
     def get_user_by_id(id):
-        return User.objects.get(id=id) if id is not None else None
+        try:
+            return User.objects.get(id=id) if id is not None else None
+        except User.DoesNotExist:
+            return None
 
     @staticmethod
     def get_author_phone_numbers():
@@ -220,6 +223,30 @@ class Post(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    @staticmethod
+    def get_all_type_posts():
+        return Post.objects.filter(Q(type='normal') | Q(type__contains='solution'))
+
+    @staticmethod
+    def get_solution_type_posts():
+        return Post.objects.filter(type__contains='solution')
+
+    @staticmethod
+    def get_normal_type_posts():
+        return Post.objects.filter(type='normal')
+
+    @staticmethod
+    def get_post_by_id(id):
+        try:
+            return Post.objects.get(id=id) if id is not None else None
+        except Post.DoesNotExist as e:
+            return None
+
+    @staticmethod
+    def get_post_by_user_id(id):
+        return Post.objects.filter(user_id=id)
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=True, default=None)
