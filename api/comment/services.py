@@ -3,11 +3,10 @@ import datetime
 from math import ceil
 from django.core.paginator import Paginator
 
-class GetComments:
+class GetCommentsService:
     def __init__(self, request, flag, post_id):
         self.flag = flag
         self.post_id = post_id
-        self.data = {}
         self.page_size = 100
         self.page_number = request.GET.get('page', 1)
 
@@ -47,24 +46,25 @@ class GetComments:
 
     def make_data(self):
         self._get_list_comments()
+        data = {}
         try:
             pagination = Paginator(self.comments, self.page_size)
             list_result_comments = pagination.page(self.page_number).object_list
-            self.data['comments'] = list_result_comments
-            self.data['current_page'] = pagination.page(self.page_number).number
-            self.data['total_pages'] = pagination.num_pages
-            self.data['total_comments'] = pagination.count
+            data['comments'] = list_result_comments
+            data['current_page'] = pagination.page(self.page_number).number
+            data['total_pages'] = pagination.num_pages
+            data['total_comments'] = pagination.count
 
         except Exception as e:
-            self.data['comments'] = []
-            self.data['current_page'] = 1
-            self.data['total_pages'] = 1
-            self.data['total_comments'] = 0
-            self.data['today_comments'] = 0
-        return self.data
+            data['comments'] = []
+            data['current_page'] = 1
+            data['total_pages'] = 1
+            data['total_comments'] = 0
+            data['today_comments'] = 0
+        return data
 
 
-class EditComment:
+class EditCommentService:
     def __init__(self, request):
         self.target_id = request.data.get('targetId', None)
         self.content = request.data.get('content', None)
@@ -93,7 +93,7 @@ class EditComment:
         return self.data
 
 
-class BlindComment:
+class BlindCommentService:
     def __init__(self, request):
         self.target_id = request.data.get('targetId', None)
         self.user_grade = request.data.get('userGrade', None)
@@ -126,11 +126,11 @@ class BlindComment:
         return self.data
 
 
-class EditCocomment(EditComment):
+class EditCocommentService(EditCommentService):
     def _set_target_model(self):
         self.target_model = OdoqModels.Cocomment
 
 
-class BlindCocomment(BlindComment):
+class BlindCocomment(BlindCommentService):
     def _set_target_model(self):
         self.target_model = OdoqModels.Cocomment

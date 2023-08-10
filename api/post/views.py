@@ -36,9 +36,9 @@ class PostView(APIView):
 
     @csrf_decorator
     def patch(self, request):
-        '''
-        좋아요 및 게시글의 수정을 담당하는 함수
-        '''
+        """
+        좋아요 및 게시글 수정
+        """
         # print('updatePost get called')
         # print('request.data is ', request.data)
 

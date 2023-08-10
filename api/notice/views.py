@@ -32,7 +32,7 @@ class NoticeDetailView(APIView):
 class CommentView(APIView):
     def get(self, request, post_id):
         # print('GetPostsService get called')
-        result = services.GetComments(request, post_id).make_data()
+        result = services.GetCommentsService(request, post_id).make_data()
         response = makeResponse(
             'success',
             '',
@@ -51,7 +51,7 @@ class CommentView(APIView):
             if comment_before_validated.is_valid():
                 comment_before_validated.save()
 
-        result = services.GetComments(request, post_id).make_data()
+        result = services.GetCommentsService(request, post_id).make_data()
 
         # print('result is ', result);
 
@@ -74,13 +74,13 @@ class CommentView(APIView):
         comment_flag = request.data.get('commentFlag', None)
         if comment_flag == 'cocomment':
             handlers = {
-                'edit': services.EditCocomment(request),
+                'edit': services.EditCocommentService(request),
                 'blind': services.BlindCocomment(request),
             }
         else:  # comment_flag == 'comment'
             handlers = {
-                'edit': services.EditComment(request),
-                'blind': services.BlindComment(request),
+                'edit': services.EditCommentService(request),
+                'blind': services.BlindCommentService(request),
             }
 
         result = handlers[flag].make_data()

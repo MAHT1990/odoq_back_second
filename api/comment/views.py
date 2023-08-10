@@ -10,12 +10,11 @@ class CommentView(APIView):
         if request.path.find('notice') != -1:
             self.post_or_notice = 'notice'
 
-
     def get(self, request, id):
         # print('GetPostsService get called')
         # print('request.path', request.path)
         self.__get_post_or_notice(request)
-        result = services.GetComments(
+        result = services.GetCommentsService(
             request,
             self.post_or_notice,
             id).make_data()
@@ -25,6 +24,7 @@ class CommentView(APIView):
             result,
         )
         return response
+
     @csrf_decorator
     def post(self, request, id):
         self.__get_post_or_notice(request)
@@ -38,7 +38,7 @@ class CommentView(APIView):
             if comment_before_validated.is_valid():
                 comment_before_validated.save()
 
-        result = services.GetComments(
+        result = services.GetCommentsService(
             request,
             self.post_or_notice,
             id
@@ -65,13 +65,13 @@ class CommentView(APIView):
         comment_flag = request.data.get('commentFlag', None)
         if comment_flag == 'cocomment':
             handlers = {
-                'edit': services.EditCocomment(request),
+                'edit': services.EditCocommentService(request),
                 'blind': services.BlindCocomment(request),
             }
         else:  # comment_flag == 'comment'
             handlers = {
-                'edit': services.EditComment(request),
-                'blind': services.BlindComment(request),
+                'edit': services.EditCommentService(request),
+                'blind': services.BlindCommentService(request),
             }
 
         result = handlers[flag].make_data()

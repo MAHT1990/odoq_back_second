@@ -81,8 +81,6 @@ class AnswerHistoryService:
         self.user = USER_MODEL.get_user_by_id(self.user_id)
         self.question = QUESTION_MODEL.get_question_by_id(self.question_id)
 
-        # print('api/question/services.py > AnswerHistoryService > self.user_id, self.question_id', self.user_id, self.question_id)
-
     def _get_answer_history(self):
         if self.user is not None and self.question is not None:
             try:
@@ -118,7 +116,6 @@ class AnswerHistoryService:
                 self.can_answer_remain_time = 0
         else:
             self.can_answer_remain_time = 0
-        # print('api/question/services.py > AnswerHistoryService > self.can_answer_remain_time', self.can_answer_remain_time)
 
     def _get_wrong_answer_history(self):
         if hasattr(self, 'answer_history'):
@@ -218,9 +215,9 @@ class AnswerCheatService:
         return data
 
 
-
 class AnswerSubmitService:
     ANSWER_COUNT_LIMIT = 5
+
     def __init__(self, request):
         self._request = request
         self._question_id = request.data.get('questionId', None)
