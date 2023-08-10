@@ -5,7 +5,14 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 
+USER_MODEL = OdoqModels.User
+POST_MODEL = OdoqModels.Post
+COMMENT_MODEL = OdoqModels.Comment
+COCOMMENT_MODEL = OdoqModels.Cocomment
+
+
 class GetPostsService:
+
     def __init__(self, request):
         # print('request.GET in post.services is ', request.GET)
         # print('request.data in post.services is ', request.data)
@@ -28,14 +35,13 @@ class GetPostsService:
         )
 
     def _get_comments_count(self, post):
-        comments_count = OdoqModels.Comment.objects.filter(post_id=post.id).count()
+        comments_count = COMMENT_MODEL.get_comments_by_post(post.id).count()
         cocomments_count = 0
         for comment in post.comments.all():
-            cocomments_count += OdoqModels.Cocomment.objects.filter(comment_id=comment.id).count()
+            cocomments_count += COCOMMENT_MODEL.get_cocomments_by_comment(comment.id).count()
         return comments_count + cocomments_count
 
     def _get_list_posts(self):
-        POST_MODEL = OdoqModels.Post
         limit, offset = self.page_size * self.page_number, self.page_size * (self.page_number - 1)
 
         if self.filtering_flag == 'all':
@@ -112,7 +118,7 @@ class GetPostDetailService:
         if self.post_id is None:
             return
         try:
-            self.post = OdoqModels.Post.get_post_by_id(self.post_id)
+            self.post = POST_MODEL.get_post_by_id(self.post_id)
             if self.post is None:
                 return
             self.__hit_count()
@@ -158,8 +164,8 @@ class LikePostService:
         self.post_id = request.data.get('postId', None)
         self.user_id = request.data.get('userId', None)
 
-        self.post = OdoqModels.Post.get_post_by_id(self.post_id)
-        self.user = OdoqModels.User.get_user_by_id(self.user_id)
+        self.post = POST_MODEL.get_post_by_id(self.post_id)
+        self.user = USER_MODEL.get_user_by_id(self.user_id)
 
     def _like_post(self):
         if self.post is None or self.user is None:
@@ -201,7 +207,7 @@ class BlindPostService:
             }
             return
 
-        post = OdoqModels.Post.get_post_by_id(self.post_id)
+        post = POST_MODEL.get_post_by_id(self.post_id)
         post.blind = not post.blind
         post.blind_text = '관리자에 의해 블라인드 처리되었습니다.' if self.user_grade == 2 else post.blind_text
         post.save()
@@ -225,7 +231,7 @@ class DeletePostService:
         try:
             if self.post_id is None:
                 raise Exception('post_id is None')
-            post = OdoqModels.Post.get_post_by_id(self.post_id)
+            post = POST_MODEL.get_post_by_id(self.post_id)
             post.delete()
             self.data = {
                 'success': True,

@@ -2,6 +2,12 @@ import odoq_models.models as OdoqModels
 import datetime
 
 
+USER_MODEL = OdoqModels.User
+QUESTION_MODEL = OdoqModels.Question
+ANSWER_HISTORY_MODEL = OdoqModels.AnswerHistory
+SMS_HISTORY_MODEL = OdoqModels.SmsHistory
+
+
 class QuestionService:
     now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
     now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
@@ -11,7 +17,7 @@ class QuestionService:
 
     def __init__(self, request):
         self._request = request
-        self._qs_qstn = OdoqModels.Question.objects.all()
+        self._qs_qstn = QUESTION_MODEL.objects.all()
 
     def __get_remain_scnd_and_q(self, question):
         return abs((question.upload_datetime - self.now_utc).total_seconds()), question
@@ -72,19 +78,19 @@ class AnswerHistoryService:
         self.question_id = request.GET.get('questionId', None)\
             if request.GET.get('questionId', None) != '0' else None
 
-        self.user = OdoqModels.User.get_user_by_id(self.user_id)
-        self.question = OdoqModels.Question.get_question_by_id(self.question_id)
+        self.user = USER_MODEL.get_user_by_id(self.user_id)
+        self.question = QUESTION_MODEL.get_question_by_id(self.question_id)
 
         # print('api/question/services.py > AnswerHistoryService > self.user_id, self.question_id', self.user_id, self.question_id)
 
     def _get_answer_history(self):
         if self.user is not None and self.question is not None:
             try:
-                self.answer_history = OdoqModels.AnswerHistory.objects.filter(
+                self.answer_history = ANSWER_HISTORY_MODEL.objects.filter(
                     user=self.user,
                     question=self.question,
                 ).order_by('-created_at')
-            except OdoqModels.AnswerHistory.DoesNotExist as e:
+            except ANSWER_HISTORY_MODEL.DoesNotExist as e:
                 # print(e)
                 self.answer_history = None
 
@@ -160,8 +166,8 @@ class AnswerLiveService:
 
     def _get_answer_live(self):
         if self.question_id is not None:
-            question = OdoqModels.Question.objects.get(id=self.question_id)
-            self.answer_live = OdoqModels.AnswerHistory.objects.filter(
+            question = QUESTION_MODEL.objects.get(id=self.question_id)
+            self.answer_live = ANSWER_HISTORY_MODEL.objects.filter(
                 question=question,
             ).order_by('-created_at')
         else:
@@ -195,8 +201,8 @@ class AnswerCheatService:
         self.user_id = request.data.get('userId', None)
 
     def _answer_cheat(self):
-        question = OdoqModels.Question.get_question_by_id(self.question_id)
-        user = OdoqModels.User.objects.get(id=self.user_id)
+        question = QUESTION_MODEL.get_question_by_id(self.question_id)
+        user = USER_MODEL.objects.get(id=self.user_id)
         user.cheated_questions.add(question)
         user.save()
         self._cheated_users = question.get_cheated_users_list()
@@ -221,22 +227,22 @@ class AnswerSubmitService:
         self._user_id = request.data.get('userId', None)
         self._answer = request.data.get('answer', None)
 
-        self.question = OdoqModels.Question.get_question_by_id(self._question_id)
-        self.user = OdoqModels.User.get_user_by_id(self._user_id)
+        self.question = QUESTION_MODEL.get_question_by_id(self._question_id)
+        self.user = USER_MODEL.get_user_by_id(self._user_id)
 
     def __is_cheated(self):
         return True if self.question.id in self.user.cheated_questions.all().values_list('id', flat=True) else False
 
     def __sms_first_solved_answer(self):
-        question_solve_history = OdoqModels.AnswerHistory.objects.filter(
+        question_solve_history = ANSWER_HISTORY_MODEL.objects.filter(
             question=self.question,
             answer=self.question.answer,
         ).order_by('-created_at')
 
         # 해당 question의 첫번째 답안일 경우에는 문자를 보낸다.
         if len(question_solve_history) == 1:
-            for phone_number in OdoqModels.User.get_author_phone_numbers():
-                OdoqModels.SmsHistory.send_message(
+            for phone_number in USER_MODEL.get_author_phone_numbers():
+                SMS_HISTORY_MODEL.send_message(
                     send_to=phone_number,
                     is_auth=False,
                     content=f'첫번째 정답이 등록되었습니다.\n{self.user.name}\n{self.user.phone}'
@@ -258,11 +264,11 @@ class AnswerSubmitService:
             self._can_answer_remain_time = 15
             return
 
-        new_history = OdoqModels.AnswerHistory.objects.create(
+        new_history = ANSWER_HISTORY_MODEL.objects.create(
             question=self.question, user=self.user, answer=self._answer,
             isSolved=self.question.answer == self._answer,
         )
-        self.question_user_history = OdoqModels.AnswerHistory.objects.filter(
+        self.question_user_history = ANSWER_HISTORY_MODEL.objects.filter(
             question=self.question, user=self.user,
         )
 
@@ -280,7 +286,7 @@ class AnswerSubmitService:
                 self.user.solved_questions.add(self.question)
                 self.__sms_first_solved_answer()
             else:
-                self.can_answer_remain_time = self.__cal_remain_time()
+                self._can_answer_remain_time = self.__cal_remain_time()
             self.question.save(), self.user.save()
 
         elif len(self.question_user_history) > self.ANSWER_COUNT_LIMIT:

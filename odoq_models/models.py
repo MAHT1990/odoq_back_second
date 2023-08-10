@@ -265,6 +265,10 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    @staticmethod
+    def get_comments_by_post(post_id):
+        return Comment.objects.filter(post_id=post_id)
+
 
 class Cocomment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='cocomments')
@@ -280,6 +284,10 @@ class Cocomment(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+    @staticmethod
+    def get_cocomments_by_comment(comment_id):
+        return Cocomment.objects.filter(comment_id=comment_id)
 
 
 class Solution(Post):
