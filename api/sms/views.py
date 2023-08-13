@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from common._RES import makeResponse
+from common._RES import make_response
 from . import services, serializers
 from middleware.CSRF import csrf_decorator
 
@@ -11,7 +11,7 @@ class SMSView(APIView):
         if (request.data['target'] == 'student'):
             result = services.SendStudentSMS(request.data)()
 
-        return makeResponse(
+        return make_response(
             'success' if result['success'] else 'error',
             result['message'],
         )

@@ -1,4 +1,4 @@
-from common._RES import midResponse
+from common._RES import mid_response
 from common._JWT import JWT
 import jwt
 from django.http import JsonResponse, HttpResponse
@@ -18,7 +18,7 @@ class JWTDecorator:
       except jwt.ExpiredSignatureError:
         decode = JWT.decode(request.headers["X-JWT"], verify=False)
 
-        return midResponse(
+        return mid_response(
             result='error',
             message='JWT Expired!',
             data={
@@ -27,13 +27,13 @@ class JWTDecorator:
             error_code=461,
         )
       except jwt.exceptions.DecodeError:
-        return midResponse(
+        return mid_response(
             result='error',
             message='JWT DecodeError!',
             error_code=460,
         )
     else:
-      return midResponse('error', 'NO JWT!')
+      return mid_response('error', 'NO JWT!')
       # JWT 인증 활성화시에 주석 해제해주어야합니다
       # return None
 
@@ -49,7 +49,7 @@ class JWTDecoratorForNonMember:  # 비회원 인증 (비회원 주문조회 용)
 
         return self.origin_func(self, request, *args, **kwargs)
       except jwt.ExpiredSignatureError:
-        return midResponse(
+        return mid_response(
           result='error',
           message='NonMember JWT Expired!',
           data={
@@ -58,13 +58,13 @@ class JWTDecoratorForNonMember:  # 비회원 인증 (비회원 주문조회 용)
           error_code=461,
         )
       except jwt.exceptions.DecodeError:
-        return midResponse(
+        return mid_response(
             result='error',
             message='NonMember JWT DecodeError!',
             error_code=460,
         )
     else:
-      return midResponse('error', 'NO NonMember JWT!')
+      return mid_response('error', 'NO NonMember JWT!')
 
 
 class JWTMiddleWare:
@@ -90,7 +90,7 @@ class JWTMiddleWare:
       except jwt.ExpiredSignatureError:
         decode = JWT.decode(request.headers["X-JWT"], verify=False)
 
-        return midResponse(
+        return mid_response(
           result='error',
           message='JWT Expired!',
           data={
@@ -99,13 +99,13 @@ class JWTMiddleWare:
           error_code=461,
         )
       except jwt.exceptions.DecodeError:
-        return midResponse(
+        return mid_response(
           result='error',
           message='JWT DecodeError!',
           error_code=460,
         )
     else:
-      return midResponse('error', 'NO JWT!')
+      return mid_response('error', 'NO JWT!')
       # JWT 인증 활성화시에 주석 해제해주어야합니다
       # return None
 

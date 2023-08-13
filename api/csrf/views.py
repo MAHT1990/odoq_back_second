@@ -6,14 +6,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from common._CSRF import _CSRF
-from common._RES import makeResponse
+from common._RES import make_response
 
 class TokenViewSet(APIView):
   def get(self, request):
     unique_id = ''.join(random.choices(
         string.ascii_uppercase + string.digits, k=32))
 
-    response = makeResponse(
+    response = make_response(
         'status', 'message', {
             'csrf_token': _CSRF.generateToken(unique_id),
             'csrf_uniqueid': unique_id,
@@ -42,7 +42,7 @@ class TokenViewSet(APIView):
       reason = 'No CSRF TOKEN OR Unique Id PRESENT'
 
 
-    response = makeResponse(
+    response = make_response(
         ('success' if reason == '' else 'error'),
         reason,
         data={}

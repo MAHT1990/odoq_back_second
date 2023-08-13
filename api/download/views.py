@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from common._RES import makeResponse
+from common._RES import make_response
 from django.conf import settings
 from django.http import FileResponse
 import os

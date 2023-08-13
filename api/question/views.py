@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from common._RES import makeResponse
+from common._RES import make_response
 from . import services
 
 
@@ -7,7 +7,7 @@ class QuestionView(APIView):
     def get(self, request):
         # print('QuestionService called')
         data = services.QuestionService(request).make_data()
-        response = makeResponse(
+        response = make_response(
             result='success',
             message='Question is successfully fetched',
             data=data,
@@ -22,7 +22,7 @@ class QuestionView(APIView):
         ) if data else (
             'fail', 'answer is failed to post', data
         )
-        return makeResponse(result, message, data)
+        return make_response(result, message, data)
 
     def patch(self, request):
         # print('cheat Answer')
@@ -32,7 +32,7 @@ class QuestionView(APIView):
         ) if data else (
             'fail', 'answer is failed to cheat', data
         )
-        return makeResponse(result, message, data)
+        return make_response(result, message, data)
 
 
 class AnswerView(APIView):
@@ -44,7 +44,7 @@ class AnswerView(APIView):
         ) if data else (
             'fail', 'answer is failed to post', data
         )
-        return makeResponse(result, message, data)
+        return make_response(result, message, data)
 
     def patch(self, request):
         # print('cheat Answer')
@@ -54,14 +54,14 @@ class AnswerView(APIView):
         ) if data else (
             'fail', 'answer is failed to cheat', data
         )
-        return makeResponse(result, message, data)
+        return make_response(result, message, data)
 
 class AnswerHistoryView(APIView):
     def get(self, request):
         # print('AnswerHistoryService called')
         result = services.AnswerHistoryService(request).make_data()
         # print('AnswerHistory get result is ', result)
-        response = makeResponse(
+        response = make_response(
             'success',
             'AnswerHistory is successfully fetched',
             result,
@@ -74,7 +74,7 @@ class AnswerLiveView(APIView):
         # print('AnswerLiveService called')
         result = services.AnswerLiveService(request).make_data()
         # print('AnswerLive get result is ', result)
-        response = makeResponse(
+        response = make_response(
             'success',
             'AnswerLive is successfully loaded',
             result,

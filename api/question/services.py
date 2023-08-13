@@ -178,7 +178,7 @@ class AnswerLiveService:
                     {
                         'user_name': answer.user.name,
                         'user_grade': answer.user.grade,
-                        'user_level': answer.user.solved_questions.count(),
+                        'user_level': answer.user.get_user_level(),
                         'answer': answer.answer,
                         'is_solved': answer.isSolved,
                         'created_at': answer.created_at,

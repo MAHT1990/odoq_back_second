@@ -20,6 +20,9 @@ class User(models.Model):
     accept_sms = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
+    def get_user_level(self):
+        return self.solved_questions.count()
+
     @staticmethod
     def get_user_by_id(id):
         try:
@@ -269,6 +272,9 @@ class Comment(models.Model):
     def get_comments_by_post(post_id):
         return Comment.objects.filter(post_id=post_id)
 
+    @staticmethod
+    def get_comments_by_notice(notice_id):
+        return Comment.objects.filter(notice_id=notice_id)
 
 class Cocomment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='cocomments')
