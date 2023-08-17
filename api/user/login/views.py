@@ -14,7 +14,7 @@ def index(request):
     })
 
 
-class LoginUserModel(APIView):
+class LoginView(APIView):
   def get(self, request):
     try:
         OdoqModels.User.objects.get(id=request.GET.get('userId'))

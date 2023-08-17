@@ -1,5 +1,6 @@
 import odoq_models.models as OdoqModels
 from math import ceil
+from common._RES import service_response
 
 
 NOTICE_MODEL = OdoqModels.Notice
@@ -59,11 +60,14 @@ class GetNoticesService:
         :return: dict
         """
         self._get_list_notices()
-        return {
-            'notices': self.notices,
-            'current_page': self.page_number,
-            'total_pages': self.total_pages,
-        }
+        return service_response(
+            True,
+            {
+                'notices': self.notices,
+                'current_page': self.page_number,
+                'total_pages': self.total_pages,
+            }
+        )
 
 class GetNoticeDetailService:
     def __init__(self, request, notice_id):
@@ -118,7 +122,7 @@ class GetNoticeDetailService:
                 }
             }
             # print('#GetNoticeDetailService', self.data)
-        return {
-            'success': True if self.data else False,
-            'data': self.data,
-        }
+        return service_response(
+            True if self.data else False,
+            self.data
+        )

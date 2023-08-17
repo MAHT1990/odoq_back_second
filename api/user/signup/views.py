@@ -14,10 +14,10 @@ class RegistUser(APIView):
       result.get('data', None)
     )
 
-class SendSMSAuth(APIView):
+class SendSMSAuthView(APIView):
   @csrf_decorator
   def post(self, request):
-    result = services.SendSMSAuth(request.data)()
+    result = services.SendSMSAuthService(request.data)()
 
     return make_response(
       'success' if result['success'] else 'error',

@@ -1,4 +1,5 @@
 import odoq_models.models as OdoqModels
+from common._RES import service_response
 import datetime
 
 
@@ -67,7 +68,7 @@ class QuestionService:
             # print(e)
             data = None
         # print('api/question/services.py > QuestionService > self.data', self._data)
-        return data
+        return service_response(True if data else False, data)
 
 
 class AnswerHistoryService:
@@ -150,7 +151,7 @@ class AnswerHistoryService:
             ] if self.wrong_answer_history is not None else None,
         }
         # print(data)
-        return data
+        return service_response(True if data else False, data)
 
 
 class AnswerLiveService:
@@ -188,7 +189,7 @@ class AnswerLiveService:
             }
         else:
             data = None
-        return data
+        return service_response(True if data else False, data)
 
 
 class AnswerCheatService:
@@ -212,7 +213,7 @@ class AnswerCheatService:
         data = {
             'cheated_users': self._cheated_users,
         }
-        return data
+        return service_response(True if data else False, data)
 
 
 class AnswerSubmitService:
@@ -302,10 +303,11 @@ class AnswerSubmitService:
 
     def make_data(self):
         self._answer_post()
-        return {
+        data = {
             'is_written': False if self.__is_cheated() else True,
             'answer_count': self.question.answer_count,
             'solve_count': self.question.solve_count,
             'can_answer_remain_time': self._can_answer_remain_time,
             'solved_users': self.question.get_solved_users_list(),
         }
+        return service_response(True if data else False, data)

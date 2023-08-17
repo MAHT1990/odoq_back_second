@@ -7,11 +7,11 @@ from middleware.CSRF import csrf_decorator
 class NoticeView(APIView):
     def get(self, request):
         # print('getnotice called')
-        result = services.GetNoticesService(request).make_data()
+        service_response = services.GetNoticesService(request).make_data()
         response = make_response(
-            'success',
+            'success' if service_response['success'] else 'fail',
             'Notice is successfully fetched',
-            result,
+            service_response['data'],
         )
         return response
 
@@ -20,10 +20,10 @@ class NoticeDetailView(APIView):
     def get(self, request, notice_id):
         # print('GetPostDetailService get called')
         # print('post_id is ', post_id)
-        result = services.GetNoticeDetailService(request, notice_id).make_data()
+        service_response = services.GetNoticeDetailService(request, notice_id).make_data()
         response = make_response(
-            'success' if result['success'] else 'error',
+            'success' if service_response['success'] else 'error',
             '',
-            result['data'],
+            service_response['data'],
         )
         return response

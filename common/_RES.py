@@ -31,8 +31,10 @@ def mid_response(result, message, data={}, status_code=200, error_code=''):
     return JsonResponse(ResponseSerializer(response_data).data, status=status_code)
 
 
-def service_response(success: bool, data: dict):
-    return {'success': success, 'data': data}
+def service_response(success: bool, data: dict, message: str = None):
+    if message is None:
+        message = '성공' if success else '실패'
+    return {'success': success, 'data': data, 'message': message}
 
 
 """

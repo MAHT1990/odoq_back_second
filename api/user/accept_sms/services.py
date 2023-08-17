@@ -1,12 +1,12 @@
 import odoq_models.models as OdoqModels
 
-class GetAcceptSMS:
+class GetAcceptSMSService:
     def __init__(self, request):
         self.request = request
         self.user_id = request.GET.get('userId', None)
 
     def make_data(self):
-        # print('## api/user/accept_sms/services.py > GetAcceptSMS self.user_id is ', self.user_id, type(self.user_id))
+        # print('## api/user/accept_sms/services.py > GetAcceptSMSService self.user_id is ', self.user_id, type(self.user_id))
         if self.user_id is not None and self.user_id != '0':
             try:
                 user = OdoqModels.User.objects.get(id=self.user_id)
@@ -26,13 +26,13 @@ class GetAcceptSMS:
             }
         return data
 
-class CheckAcceptSMS:
+class CheckAcceptSMSService:
     def __init__(self, request):
         self.request = request
         self.user_id = request.data.get('userId', None)
 
     def make_data(self):
-        # print('## api/user/accept_sms/services.py > CheckAcceptSMS self.user_id is ', self.user_id, type(self.user_id))
+        # print('## api/user/accept_sms/services.py > CheckAcceptSMSService self.user_id is ', self.user_id, type(self.user_id))
         if self.user_id is not None:
             user = OdoqModels.User.objects.get(id=self.user_id)
             user.accept_sms = not user.accept_sms
