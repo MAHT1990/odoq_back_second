@@ -10,7 +10,7 @@ class RegistUser(serializers.Serializer):
   class Meta:
     model = None
 
-class SendSMSAuth(serializers.Serializer):
+class SendSMSAuthSerializer(serializers.Serializer):
   phone = serializers.CharField(required=True)
 
   class Meta:

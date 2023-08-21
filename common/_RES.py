@@ -4,35 +4,44 @@ from django.http import JsonResponse
 
 
 class ResponseClass(object):
-  def __init__(self, result, message, data=dict(), error_code=''):
-    self.result = result
-    self.error_code = error_code
-    self.message = message
-    self.data = data or dict()
+    def __init__(self, result, message, data=dict(), error_code=''):
+        self.result = result
+        self.error_code = error_code
+        self.message = message
+        self.data = data or dict()
 
 
 class ResponseSerializer(serializers.Serializer):
-  result = serializers.CharField(allow_blank=True)
-  error_code = serializers.CharField(allow_blank=True)
-  message = serializers.CharField(allow_blank=True)
-  data = serializers.DictField()
-  class Meta:
-    model = None
+    result = serializers.CharField(allow_blank=True)
+    error_code = serializers.CharField(allow_blank=True)
+    message = serializers.CharField(allow_blank=True)
+    data = serializers.DictField()
 
-def makeResponse(result, message, data={}, status_code=200, error_code=''):
-  responseData = ResponseClass(result, message, data, error_code)
-  return Response(ResponseSerializer(responseData).data, status=status_code)
+    class Meta:
+        model = None
 
-def midResponse(result, message, data={}, status_code=200, error_code=''):
-  responseData = ResponseClass(result, message, data, error_code)
-  return JsonResponse(ResponseSerializer(responseData).data, status=status_code)
+
+def make_response(result, message, data={}, status_code=200, error_code=''):
+    response_data = ResponseClass(result, message, data, error_code)
+    return Response(ResponseSerializer(response_data).data, status=status_code)
+
+
+def mid_response(result, message, data={}, status_code=200, error_code=''):
+    response_data = ResponseClass(result, message, data, error_code)
+    return JsonResponse(ResponseSerializer(response_data).data, status=status_code)
+
+
+def service_response(success: bool, data: dict, message: str = None):
+    if message is None:
+        message = '성공' if success else '실패'
+    return {'success': success, 'data': data, 'message': message}
 
 
 """
 사용법
-from _RES import makeResponse
+from _RES import make_response
 
-return makeResponse(result, message, data, status_code=200, error_code='200/400/500..')
+return make_response(result, message, data, status_code=200, error_code='200/400/500..')
 
 
 """

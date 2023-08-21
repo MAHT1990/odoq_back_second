@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.db.models import Q
 
 
 # Create your models here.
@@ -19,6 +20,23 @@ class User(models.Model):
     accept_sms = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
+    def get_user_level(self):
+        return self.solved_questions.count()
+
+    @staticmethod
+    def get_user_by_id(id):
+        try:
+            return User.objects.get(id=id) if id is not None else None
+        except User.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_author_phone_numbers():
+        return User.objects.filter(Q(grade=1) | Q(grade=2)).filter(accept_sms=True).values_list('phone', flat=True)
+
+    @staticmethod
+    def get_student_phone_numbers():
+        return User.objects.filter(grade=0).filter(accept_sms=True).values_list('phone', flat=True)
 
 # SMS 인증 관련.
 def SMS_HISTORY_AUTH_EXPIRE():
@@ -159,6 +177,16 @@ class Question(models.Model):
     def __str__(self):
         return self.code
 
+    def get_solved_users_list(self):
+        return [user_id for user_id in self.solved_users.all().values_list('id', flat=True)]
+
+    def get_cheated_users_list(self):
+        return [user_id for user_id in self.cheated_users.all().values_list('id', flat=True)]
+
+    @staticmethod
+    def get_question_by_id(id):
+        return Question.objects.get(id=id) if id is not None else None
+
 
 class AnswerHistory(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -199,6 +227,30 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    @staticmethod
+    def get_all_type_posts():
+        return Post.objects.filter(Q(type='normal') | Q(type__contains='solution'))
+
+    @staticmethod
+    def get_solution_type_posts():
+        return Post.objects.filter(type__contains='solution')
+
+    @staticmethod
+    def get_normal_type_posts():
+        return Post.objects.filter(type='normal')
+
+    @staticmethod
+    def get_post_by_id(id):
+        try:
+            return Post.objects.get(id=id) if id is not None else None
+        except Post.DoesNotExist as e:
+            return None
+
+    @staticmethod
+    def get_post_by_user_id(id):
+        return Post.objects.filter(user_id=id)
+
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', null=True, default=None)
     notice = models.ForeignKey(Notice, on_delete=models.CASCADE, related_name='comments', null=True, default=None)
@@ -216,6 +268,13 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    @staticmethod
+    def get_comments_by_post(post_id):
+        return Comment.objects.filter(post_id=post_id)
+
+    @staticmethod
+    def get_comments_by_notice(notice_id):
+        return Comment.objects.filter(notice_id=notice_id)
 
 class Cocomment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='cocomments')
@@ -231,6 +290,10 @@ class Cocomment(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+    @staticmethod
+    def get_cocomments_by_comment(comment_id):
+        return Cocomment.objects.filter(comment_id=comment_id)
 
 
 class Solution(Post):

@@ -8,7 +8,7 @@ from common._JWT import JWT
 from . import serializers
 
 
-class RegistUser():
+class RegistUser:
     def __init__(self, request_data):
         self.request_data = serializers.RegistUser(data=request_data)
 
@@ -79,9 +79,9 @@ class RegistUser():
             return True
         return False
 
-class SendSMSAuth():
+class SendSMSAuthService:
     def __init__(self, request_data):
-        self.request_data = serializers.SendSMSAuth(data=request_data)
+        self.request_data = serializers.SendSMSAuthSerializer(data=request_data)
 
     def __call__(self):
         if self.request_data.is_valid():
@@ -97,7 +97,7 @@ class SendSMSAuth():
             return {'success': False, 'message': common.serializer_error_message(self.request_data.errors)}
 
 
-class VerifySMSAuth():
+class VerifySMSAuth:
     def __init__(self, request_data):
         self.request_data = serializers.VerifySMSAuth(data=request_data)
 

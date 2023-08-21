@@ -1,7 +1,13 @@
 import odoq_models.models as OdoqModels
 from math import ceil
+from common._RES import service_response
 
-class GetNotices:
+
+NOTICE_MODEL = OdoqModels.Notice
+COMMENT_MODEL = OdoqModels.Comment
+
+
+class GetNoticesService:
     def __init__(self, request):
         self.request = request
         self.page_number = int(request.GET.get('pageNumber', 1))
@@ -10,10 +16,10 @@ class GetNotices:
     def _get_comments_count(self, notice):
         """
         댓글 개수를 가져오는 함수
-        :param notice: OdoqModels.Notice
+        :param notice: NOTICE_MODEL
         :return: int
         """
-        comments_count = OdoqModels.Comment.objects.filter(notice_id=notice.id).count()
+        comments_count = COMMENT_MODEL.get_comments_by_notice(notice.id).count()
         cocomments_count = 0
         for comment in notice.comments.all():
             cocomments_count += comment.cocomments.count()
@@ -24,16 +30,15 @@ class GetNotices:
         공지사항 리스트를 가져오는 함수
         :return: QuerySet
         """
-        notice_model = OdoqModels.Notice
         limit, offset = self.page_size * self.page_number, self.page_size * (self.page_number - 1)
-        queryset_notice = OdoqModels.Notice.objects.all().order_by('-created_at')[offset:limit]
+        queryset_notice = NOTICE_MODEL.objects.all().order_by('-created_at')[offset:limit]
         list_temp_notices = []
         for notice in queryset_notice:
             list_temp_notices.append({
                 'id': notice.id,
                 'user_id': notice.user.id,
                 'user_grade': notice.user.grade,
-                'user_level': notice.user.solved_questions.count(),
+                'user_level': notice.user.get_user_level(),
                 'user_name': notice.user.name,
                 'title': notice.title,
                 'img_url': notice.img.url if notice.img else None,
@@ -47,7 +52,7 @@ class GetNotices:
                 'is_display': notice.is_display,
             })
         self.notices = list_temp_notices
-        self.total_pages = ceil(notice_model.objects.count() / self.page_size)
+        self.total_pages = ceil(NOTICE_MODEL.objects.count() / self.page_size)
 
     def make_data(self):
         """
@@ -55,13 +60,16 @@ class GetNotices:
         :return: dict
         """
         self._get_list_notices()
-        return {
-            'notices': self.notices,
-            'current_page': self.page_number,
-            'total_pages': self.total_pages,
-        }
+        return service_response(
+            True,
+            {
+                'notices': self.notices,
+                'current_page': self.page_number,
+                'total_pages': self.total_pages,
+            }
+        )
 
-class GetNoticeDetail:
+class GetNoticeDetailService:
     def __init__(self, request, notice_id):
         self.request = request
         self.notice_id = notice_id
@@ -70,12 +78,12 @@ class GetNoticeDetail:
     def _get_notice(self):
         """
         공지사항을 가져오는 함수
-        :return: OdoqModels.Notice
+        :return: NOTICE_MODEL
         """
         if self.notice_id is not None:
             try:
-                self.notice = OdoqModels.Notice.objects.get(id=self.notice_id)
-            except OdoqModels.Notice.DoesNotExist:
+                self.notice = NOTICE_MODEL.objects.get(id=self.notice_id)
+            except NOTICE_MODEL.DoesNotExist:
                 self.notice = None
         if self.notice is not None:
             self.__hit_count()
@@ -100,7 +108,7 @@ class GetNoticeDetail:
                     'id': self.notice.id,
                     'user_id': self.notice.user.id,
                     'user_grade': self.notice.user.grade,
-                    'user_level': self.notice.user.solved_questions.count(),
+                    'user_level': self.notice.user.get_user_level(),
                     'user_name': self.notice.user.name,
                     'title': self.notice.title,
                     'content': self.notice.content,
@@ -113,8 +121,8 @@ class GetNoticeDetail:
                     'updated_at': self.notice.updated_at,
                 }
             }
-            # print('#GetNoticeDetail', self.data)
-        return {
-            'success': True if self.data else False,
-            'data': self.data,
-        }
+            # print('#GetNoticeDetailService', self.data)
+        return service_response(
+            True if self.data else False,
+            self.data
+        )

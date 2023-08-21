@@ -1,4 +1,4 @@
-from common._RES import midResponse
+from common._RES import mid_response
 from common._CSRF import _CSRF
 
 
@@ -10,10 +10,10 @@ def csrf_decorator(func):
       if _CSRF.validateToken(csrf_token, csrf_unique_id):
         return func(self, request, *args, **kwargs)
       else:
-        return midResponse('error', 'CSRF TOKEN VALIDATION FAILED', error_code=406)
+        return mid_response('error', 'CSRF TOKEN VALIDATION FAILED', error_code=406)
 
     else:
-      return midResponse('error', 'NO CSRF TOKEN FOUND', error_code=405)
+      return mid_response('error', 'NO CSRF TOKEN FOUND', error_code=405)
   return check
 
 
@@ -31,10 +31,10 @@ class CSRFMiddleWare:
         if (_CSRF.validateToken(csrfToken, csrfUniqueId)):
           return None
         else:
-          return midResponse('error', 'CSRF TOKEN VALIDATION FAILED', error_code=406)
+          return mid_response('error', 'CSRF TOKEN VALIDATION FAILED', error_code=406)
         return None
       else:
-        return midResponse('error', 'NO CSRF TOKEN FOUND', error_code=405)
+        return mid_response('error', 'NO CSRF TOKEN FOUND', error_code=405)
 
   def process_response(self, request, response):
     return response

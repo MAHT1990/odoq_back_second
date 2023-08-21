@@ -35,10 +35,10 @@ urlpatterns_download = [
 
 urlpatterns_user = [
     path('api/user/', api.user.views.index),
-    path('api/user/accept_sms/', api.user.accept_sms.views.AcceptSMS.as_view()),
-    path('api/user/login/', api.user.login.views.LoginUserModel.as_view()),
+    path('api/user/accept_sms/', api.user.accept_sms.views.AcceptSMSView.as_view()),
+    path('api/user/login/', api.user.login.views.LoginView.as_view()),
     path('api/user/signup/', api.user.login.views.index),
-    path('api/user/signup/send_sms_auth/', api.user.signup.views.SendSMSAuth.as_view()),
+    path('api/user/signup/send_sms_auth/', api.user.signup.views.SendSMSAuthView.as_view()),
     path('api/user/signup/verify_sms_auth/', api.user.signup.views.VerifySMSAuth.as_view()),
     path('api/user/signup/create/', api.user.signup.views.RegistUser.as_view()),
 ]
@@ -51,8 +51,9 @@ urlpatterns_notice = [
 
 urlpatterns_question = [
     path('api/question/', api.question.views.QuestionView.as_view()),
-    path('api/question/answer_history/', api.question.views.AnswerHistoryView.as_view()),
-    path('api/question/answer_live/', api.question.views.AnswerLiveView.as_view()),
+    path('api/question/answer/', api.question.views.AnswerView.as_view()),
+    path('api/question/answer/history/', api.question.views.AnswerHistoryView.as_view()),
+    path('api/question/answer/live/', api.question.views.AnswerLiveView.as_view()),
 ]
 
 urlpatterns_post = [

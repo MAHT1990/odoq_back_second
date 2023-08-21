@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from common._RES import makeResponse
+from common._RES import make_response
 import odoq_models.models as OdoqModels
 from common._ENCRYPT import ENCRYPT
 from common._JWT import JWT
@@ -14,14 +14,14 @@ def index(request):
     })
 
 
-class LoginUserModel(APIView):
+class LoginView(APIView):
   def get(self, request):
     try:
         OdoqModels.User.objects.get(id=request.GET.get('userId'))
     except OdoqModels.User.DoesNotExist:
-        return makeResponse('error', '계정 미존재')
+        return make_response('error', '계정 미존재')
     else:
-        return makeResponse('success', '해당 계정 존재')
+        return make_response('success', '해당 계정 존재')
   @csrf_decorator
   def post(self, request):
     email = request.data['email']
@@ -32,18 +32,18 @@ class LoginUserModel(APIView):
       for user in users:
         if ENCRYPT.validate(password, user.encrypted_password):
           token = JWT.sign(user.id, user.grade, user.name)
-          return makeResponse(
+          return make_response(
             'success',
             '',
             dictionaries.GetDataTable(token).make_data()
           )
-      return makeResponse(
+      return make_response(
         'error',
         '비밀번호가 일치하지 않습니다.',
         error_code='411'
       )
     else:
-      return makeResponse(
+      return make_response(
         'error',
         '계정을 찾을 수 없습니다.',
         error_code='411'
