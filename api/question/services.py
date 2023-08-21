@@ -10,8 +10,6 @@ SMS_HISTORY_MODEL = OdoqModels.SmsHistory
 
 
 class QuestionService:
-    now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
-    now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
     _data = None
     _question = None
     _scnd_remain = None
@@ -19,6 +17,11 @@ class QuestionService:
     def __init__(self, request):
         self._request = request
         self._qs_qstn = QUESTION_MODEL.objects.all()
+        self.__get_now()
+
+    def __get_now(self):
+        self.now_utc = datetime.datetime.now(tz=datetime.timezone.utc)
+        self.now_kor = datetime.datetime.now(tz=datetime.timezone(datetime.timedelta(hours=9)))
 
     def __get_remain_scnd_and_q(self, question):
         return abs((question.upload_datetime - self.now_utc).total_seconds()), question
@@ -67,7 +70,7 @@ class QuestionService:
         except AttributeError as e:
             # print(e)
             data = None
-        # print('api/question/services.py > QuestionService > self.data', self._data)
+        print('api/question/services.py > QuestionService > data', data)
         return service_response(True if data else False, data)
 
 
