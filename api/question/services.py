@@ -70,7 +70,7 @@ class QuestionService:
         except AttributeError as e:
             # print(e)
             data = None
-        print('api/question/services.py > QuestionService > data', data)
+        # print('api/question/services.py > QuestionService > data', data)
         return service_response(True if data else False, data)
 
 
