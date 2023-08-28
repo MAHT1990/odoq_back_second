@@ -277,7 +277,7 @@ class AnswerSubmitService:
         해당 문항에 현재 학생이 제출한 답안이 5회 이하일 경우에만 반영.
         해당 문항을 현재 학생이 이미 풀었을 경우에는 반영하지 않음.
         """
-
+        self._can_answer_remain_time = 15  # default
         if len(self.question_user_history) <= self.ANSWER_COUNT_LIMIT and self.question not in self.user.solved_questions.all():
             self.question.answer_count += 1
             self.user.answered_questions.add(self.question)
