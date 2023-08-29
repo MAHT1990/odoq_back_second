@@ -34,7 +34,7 @@ urlpatterns_download = [
 ]
 
 urlpatterns_user = [
-    path('api/user/', api.user.views.index),
+    path('api/user/', api.user.views.EditUserView.as_view()),
     path('api/user/accept_sms/', api.user.accept_sms.views.AcceptSMSView.as_view()),
     path('api/user/login/', api.user.login.views.LoginView.as_view()),
     path('api/user/signup/', api.user.login.views.index),

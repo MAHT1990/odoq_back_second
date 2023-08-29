@@ -31,6 +31,13 @@ class User(models.Model):
             return None
 
     @staticmethod
+    def get_user_by_name(name):
+        try:
+            return User.objects.filter(name=name) if name is not None else None
+        except User.DoesNotExist:
+            return None
+
+    @staticmethod
     def get_author_phone_numbers():
         return User.objects.filter(Q(grade=1) | Q(grade=2)).filter(accept_sms=True).values_list('phone', flat=True)
 
