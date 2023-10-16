@@ -16,11 +16,15 @@ class SmsHistoryAdmin(admin.ModelAdmin):
 class NoticeAdmin(admin.ModelAdmin):
     list_display = [
         'id',
+        'is_display',
         'title',
         'img',
         'content',
         'created_at',
         'updated_at',
+    ]
+    list_editable = [
+        'is_display',
     ]
 
 @admin.register(Question)

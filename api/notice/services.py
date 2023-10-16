@@ -11,7 +11,7 @@ class GetNoticesService:
     def __init__(self, request):
         self.request = request
         self.page_number = int(request.GET.get('pageNumber', 1))
-        self.page_size = int(request.GET.get('pageSize', 10))
+        self.page_size = int(request.GET.get('pageSize', 15))
 
     def _get_comments_count(self, notice):
         """
