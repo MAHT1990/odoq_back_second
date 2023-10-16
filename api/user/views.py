@@ -12,6 +12,12 @@ USER_MODEL = OdoqModels.User
 class EditUserView(APIView):
     @csrf_decorator
     def patch(self, request):
+        new_name = request.data['userName']
+        if not new_name or new_name.isspace():
+            return make_response('error', '닉네임을 입력해주세요.')
+        if len(new_name) > 10:
+            return make_response('error', '닉네임은 10자 이하로 입력해주세요.')
+
         try:
             user = USER_MODEL.get_user_by_id(request.data['userId'])
             users_by_name = USER_MODEL.get_user_by_name(request.data['userName'])
@@ -20,13 +26,14 @@ class EditUserView(APIView):
         except Exception as e:
             return make_response('error', '닉네임 변경오류.')
 
+        if users_by_name.count() > 0:
+            return make_response('error', '닉네임이 중복되었습니다.')
+        
         if not ENCRYPT.validate(request.data['password'], user.encrypted_password):
             return make_response('error', '비밀번호가 일치하지 않습니다.')
 
-        if users_by_name.count() > 0:
-            return make_response('error', '닉네임이 중복되었습니다.')
 
-        user.name = request.data['userName']
+        user.name = new_name
         user.save()
         token = JWT.sign(user.id, user.grade, user.name)
         data = dictionaries.GetDataTable(token).make_data()
